@@ -5,6 +5,10 @@ $( document ).ready(function($) {
       $("#msg").text(iMessage)
    }
 
+   function log(iMessage){
+      $("#log").text(iMessage)
+   }
+
    function connectWS(){
       if ("WebSocket" in window){
          //var ws = new WebSocket("ws://soundtouch.redsofa.ca/entry");
@@ -12,7 +16,7 @@ $( document ).ready(function($) {
          var ws = new WebSocket("ws://localhost:8081/entry");
             
          ws.onopen = function(){
-            alert("connected")
+            log("connected")
          }  
 
          ws.onmessage = function (evt) 
