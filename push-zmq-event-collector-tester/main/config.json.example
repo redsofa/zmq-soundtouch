@@ -1,0 +1,7 @@
+{    
+    "PushServerIP" : "127.0.0.1",
+    "PushServerPort" : "8999",
+    "ClientSecretKey" : "",
+    "ClientPublicKey" : "",
+    "ServerPublicKey" : ""
+}

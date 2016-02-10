@@ -1,0 +1,9 @@
+{    
+    "SoundTouchIP" : "192.168.2.10",
+    "SoundTouchPort" : "8080",
+    "PushServerIP" : "127.0.0.1",
+    "PushServerPort" : "8999",
+    "ClientSecretKey" : "",
+    "ClientPublicKey" : "",
+    "ServerPublicKey" : ""
+}
