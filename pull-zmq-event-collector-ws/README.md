@@ -1,7 +1,7 @@
 CREDIT : 
 --------
 
-Note that the client-server code in this project is code from :
+Note that the client-server code in this project is from :
 
 https://github.com/golang-samples/websocket/tree/master/websocket-chat
 
