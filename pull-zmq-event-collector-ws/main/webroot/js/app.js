@@ -257,11 +257,7 @@ $( document ).ready(function($) {
       //console.log(xmlDoc);
    } 
 
-
-
    connectWebSocket();
-
-
 
 });
 
