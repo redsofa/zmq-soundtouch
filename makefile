@@ -7,6 +7,8 @@ build-pull-zmq-event-collector-ws:
 	@echo Using Go Path :
 	@echo $(GOPATH)
 
+dist-pull-zmq-event-collector-ws:
+	@echo dist-pull-zmq-event-collector-ws 
 
 clean:
 	@echo Cleaning ...

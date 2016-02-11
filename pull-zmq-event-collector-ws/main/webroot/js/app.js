@@ -3,32 +3,17 @@
 */
 function GraphStore(){
   this.nodes = Array();
-  this.links = Array();
 }
 
-GraphStore.prototype.addNode = function (id, nodeGroup) {
-  this.nodes.push({"id":id, "nodeGroup":nodeGroup});
+GraphStore.prototype.addNode = function (id, iNodeType) {
+  this.nodes.push({"id":id, "nodeType":iNodeType});
 };
 
-GraphStore.prototype.addLink = function (source, target, value) {
-  this.links.push({"source":this.findNode(source),"target":this.findNode(target),"value":value});
-};
-
-GraphStore.prototype.findNode = function(id) {
-  for (var i in this.nodes) {
-      if (this.nodes[i]["id"] === id){ 
-        return this.nodes[i];
-      }
-  };
-};
 
 GraphStore.prototype.getNodes = function(){
   return this.nodes;
 };
 
-GraphStore.prototype.getLinks = function(){
-  return this.links;
-};
 /****************************************************************/
 
 
@@ -71,9 +56,7 @@ Vis.prototype.createForceLayout = function(){
     .size([this.w, this.h])
     .gravity(.05)
     .distance(50)
-    .linkDistance(50)
-    .nodes(this.graphStore.getNodes())
-    .links(this.graphStore.getLinks());
+    .nodes(this.graphStore.getNodes());
 };
 
 Vis.prototype.setGraphStorage = function(iStorage){
@@ -91,68 +74,6 @@ Vis.prototype.update =function(){
 
   this.recreateContainer();
 
-  var getHullGroups = function(){
-    //groupBy nodeGroup
-    var retVal = d3.nest().key(function(d){
-      return d.nodeGroup;
-    }).entries(sRef.graphStore.getNodes());
-    return retVal;
-  };
-
-  var groups = getHullGroups();
-
-  var hullPath = function (d) {
-      if (d.values.length > 2) {
-          return "M" + d3.geom.hull(d.values.map(function (i) {
-                  return [i.x, i.y];
-              }))
-              .join("L")
-              + "Z";
-      } else {
-          var x = d.values[0].x;
-          var y = d.values[0].y;
-          var x2 = parseFloat(x) + 1;
-          var y2 = parseFloat(y) + 1;
-          var x3 = parseFloat(x) - 1;
-          var y3 = parseFloat(y) - 1;
-          var path = "M" + x + "," + y + "L" + x2 + "," + y2 + "L" + x3 + "," + y3;
-
-          for (var i = 1; i < d.values.length; i++) {
-              var a = d.values[i].x;
-              var b = d.values[i].y;
-              path += "L" + a + "," + b;
-          }
-          path += "Z";
-          return path;
-      }
-  };
-
-  //Credit : http://jsfiddle.net/FEM3e/7/
-  var updateHulls = function(){
-    sRef.svg.selectAll("path")
-      .data(groups)
-      .attr("d", hullPath)
-      .enter()
-      .insert("path", "g")
-      .attr('class','hull')
-      .attr("id", function (d,i) { 
-        return "path_" + i; 
-      })
-      .attr('cursor', 'crosshair')
-      .style("fill", "lightblue")
-      .style("stroke", "lightblue")
-      .style("stroke-width", 57)
-      .style("stroke-linejoin", "round")
-      .style("opacity", .2)
-      .call(hullDragBehavior())
-      .on('dblclick', function(d){
-          if (d3.event.defaultPrevented){
-              return;
-          } 
-          console.log("Double Click");
-          console.log(d);
-      });
-  };
 
   var forceDragBehavior = function(){
     var retVal = sRef.force.drag()
@@ -168,21 +89,6 @@ Vis.prototype.update =function(){
     return retVal;
   };
 
-  var createLinks = function(){
-    var link = sRef.svg.selectAll("link")
-      .data(sRef.graphStore.getLinks(), function(d) { 
-          return d.source.id + "-" + d.target.id; 
-      });
-
-    var linkEnter = link.enter()
-      .append("line")
-      .attr("class", "link")
-      .style('stroke', 'red')
-      .style("stroke-width", 2);
-
-    link.exit().remove();
-    return link;
-  };
 
   var createNodes = function(){
     var node = sRef.svg.append("g")
@@ -197,6 +103,26 @@ Vis.prototype.update =function(){
       .attr('cursor', 'move')
       .attr("cx", function(d) { return d.x; })
       .attr("cy", function(d) { return d.y; })
+      .attr("fill", function(d){        
+        if (d.nodeType == "VolChange"){
+          return "lightBlue";
+        }else if(d.nodeType == "Heartbeat"){
+          return "red" ;
+        }else if(d.nodeType == "PresetChange"){
+          return "green" ;
+        }else if(d.nodeType == "SocketOpen"){
+          return "orange" ;
+        }else if(d.nodeType == "SocketClose"){
+          return "blue" ;      
+        }else if(d.nodeType == "RecentsUpdate"){
+          return "grey" ;
+        }else{
+          return "black"
+        }
+      })
+      .style("stroke", "black")      
+      .style("stroke-width", 1)
+      .style("opacity", 0.7)
       .attr("r", 10)
       .attr("id",function(d) { 
         return "Node;" + d.id;
@@ -217,50 +143,12 @@ Vis.prototype.update =function(){
         .attr("cy", function(d) { return d.y; });
   };
 
-  var hullDragBehavior  = function(e) {
-    var retVal = d3.behavior.drag()
-      .on('dragstart', function (d) {
-          d3.event.sourceEvent.stopPropagation(); // silence other listeners
-          d3.select(this).style("stroke", "red");
-      })
-      .on('drag', function (d, i) {
-          d3.selectAll('.d3-tip').remove();
-          var nodeGroup = parseInt(d.key);
-          var dx = d3.event.dx;
-          var dy = d3.event.dy;
-          sRef.moveNodeGroup(nodeGroup, dx, dy);
-      })
-      .on('dragend',function(d){
-          d3.event.sourceEvent.stopPropagation(); // silence other listeners
-          d3.select(this).style("stroke", "lightblue");          
-      });
-
-      return retVal;
-    };
-
   this.force.on("tick", function(e) {
-      updateHulls(e);
       onForceNodeTick(e);
-      onForceLinkTick();
   });
 
-  var link = createLinks();
   var node = createNodes();
 
-  var onForceLinkTick = function(){
-    link.attr("x1", function (d) {
-          return d.source.x;
-       })
-       .attr("y1", function (d) {
-          return d.source.y;
-       })
-       .attr("x2", function (d) {
-          return d.target.x;
-       })
-       .attr("y2", function (d) {
-          return d.target.y;
-       });
-  };
 
   function setAllNodesFixed(){
     sRef.graphStore.getNodes().forEach(function (e){
@@ -281,25 +169,6 @@ Vis.prototype.startForceLayout = function(iIterationCount){
     this.force.stop();
 }
 
-Vis.prototype.moveNodeGroup = function(iGroup, dx, dy){
-  
-  var filteredNodes = d3.selectAll(".node").filter(function(n){
-      return n.nodeGroup === iGroup;
-  });
-
-  filteredNodes.attr("cx", function (n){
-      n.px = n.px + dx;
-      n.x = n.x + dx;
-      return n.x;
-    }).attr("cy", function(n){
-      n.py = n.py + dy;
-      n.y = n.y + dy;
-      return n.y;
-    });
-
-  this.startForceLayout(1);
-};
-
 
 
 $( document ).ready(function($) {
@@ -313,14 +182,14 @@ $( document ).ready(function($) {
       $("#log").append("<p>" + eventLogCounter + " - " + iMessage + "</p>")
    }
 
-   function connectWS(){
+   function connectWebSocket(){
       if ("WebSocket" in window){
          //var ws = new WebSocket("ws://soundtouch.redsofa.ca/entry");
          var ws = new WebSocket("ws://localhost:8081/entry");
             
          ws.onopen = function(){
             log("Opened Socket Connection");
-            addData();
+            addNode("SocketOpen");
          }  
 
          ws.onmessage = function (evt){ 
@@ -331,6 +200,7 @@ $( document ).ready(function($) {
       
          ws.onclose = function(){                   
             log("Closed Socket Connection");
+            addNode("SocketClose");
          };
       }else{
          log("WebSocket NOT supported by your Browser!");
@@ -351,13 +221,9 @@ $( document ).ready(function($) {
    //Set graph storage
    myVis.setGraphStorage(storage);
 
-   var addData = function(){
-     var group = groupCount++;
+   var addNode = function(iNodeType){
      var node1 = nodeCount++;
-     var node2 = nodeCount++
-     storage.addNode(node1, group);
-     storage.addNode(node2, group);
-     storage.addLink(node1, node2, {"value": 12, "nodeGroup": group});
+     storage.addNode(node1, iNodeType);
      myVis.update();
    };
 
@@ -375,23 +241,25 @@ $( document ).ready(function($) {
       if ($volumeUpdated.length ){
          $targetVolume = $volumeUpdated.find("targetvolume");
          log("Volume Change to : " + $targetVolume.text());
-         addData();         
+         addNode("VolChange");         
       }else if ($presetUpdated.length) {
          $preset = $presetUpdated.find("itemName");          
          log("Preset Change : " + $preset.text());
-         addData();
+         addNode("PresetChange");
       }else if ($recentsUpdated.length){       
          $recents = $recentsUpdated.find("recents");
          log("Recents List Update");
-         addData();
+         addNode("RecentsUpdate");
       }else if ($connectionStatusUpdated.length) {
          log("Heartbeat from SoundTouch");
-         addData();
+         addNode("Heartbeat");
       }
       //console.log(xmlDoc);
    } 
 
-   connectWS();
+
+
+   connectWebSocket();
 
 
 
