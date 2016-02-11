@@ -1,42 +1,38 @@
 $( document ).ready(function($) {
-
-   function refreshDiv(iMessage){
-      $("#msg").empty();
-      $("#msg").text(iMessage)
-   }
+   var eventLogCounter = 0;
 
    function log(iMessage){
-      $("#log").text(iMessage)
+      eventLogCounter++ ;
+      if (eventLogCounter % 10 === 0){
+         $("#log").empty();
+      }
+      $("#log").append("<p>" + eventLogCounter + " - " + iMessage + "</p>")
    }
 
    function connectWS(){
       if ("WebSocket" in window){
          //var ws = new WebSocket("ws://soundtouch.redsofa.ca/entry");
-
          var ws = new WebSocket("ws://localhost:8081/entry");
             
          ws.onopen = function(){
-            log("connected")
+            log("Opened Socket Connection")
          }  
 
-         ws.onmessage = function (evt) 
-         { 
+         ws.onmessage = function (evt){ 
             var received_msg = evt.data;
             jsonDoc = JSON.parse(received_msg);
             parseXml(jsonDoc)
-
          };
       
-         ws.onclose = function()
-         {                   
-            alert("Connection is closed..."); 
+         ws.onclose = function(){                   
+            log("Closed Socket Connection");
          };
       }else{
+         log("WebSocket NOT supported by your Browser!");
          alert("WebSocket NOT supported by your Browser!");
       }
    }
    
-
    function parseXml(iXml){
       xmlDoc = $.parseXML( iXml.body );
 
@@ -45,29 +41,21 @@ $( document ).ready(function($) {
       $volumeUpdated = $xml.find("volumeUpdated" );
       $presetUpdated = $xml.find("preset");
       $recentsUpdated = $xml.find("recentsUpdated");
+      $connectionStatusUpdated = $xml.find("connectionStateUpdated");
 
-      if ( $volumeUpdated.length ){
-         console.log("Volume Change");
+      if ($volumeUpdated.length ){
          $targetVolume = $volumeUpdated.find("targetvolume");
-         refreshDiv("Target Volume Change : " + $targetVolume.text()) 
-         console.log(xmlDoc);
-         return;
+         log("Volume Change to : " + $targetVolume.text());         
       }else if ($presetUpdated.length) {
-         console.log("Preset Updated");
-         $preset = $presetUpdated.find("itemName");
-         refreshDiv("Preset Change : " + $preset.text()) 
-         console.log(xmlDoc);
-         return;
-      }else if ($recentsUpdated.length){
-         console.log("Recents Updated");
+         $preset = $presetUpdated.find("itemName");          
+         log("Preset Change : " + $preset.text());         
+      }else if ($recentsUpdated.length){       
          $recents = $recentsUpdated.find("recents");
-         refreshDiv("Recents List : " + $recents.text()) 
-         console.log(xmlDoc);
-         return;
+         log("Recents List Update");          
+      }else if ($connectionStatusUpdated.length) {
+         log("Heartbeat from SoundTouch");
       }
-
-      console.log(xmlDoc)
-
+      //console.log(xmlDoc);
    } 
 
    connectWS();
