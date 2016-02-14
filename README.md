@@ -10,7 +10,7 @@ Project List :
 --------------
 
 1) - `ws-push-zmq-event-collector` :
-Project that connects to Bose SoundTouch over WebSocketw and pushes the WebSocket messages to a secure ZeroMQ TCP PULL socket
+Project that connects to Bose SoundTouch over WebSocket and pushes the WebSocket messages to a secure ZeroMQ TCP PULL socket
 
 
 2) - `pull-zmq-event-collector-ws` : 
