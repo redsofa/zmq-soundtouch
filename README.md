@@ -3,6 +3,9 @@ zmq-soundtouch
 A series of projects exploring secure ZeroMQ connections and SoundTouch event data collection.
 
 
+![Screencast](https://github.com/redsofa/zmq-soundtouch/blob/master/docs/demo.gif "Screencast")
+
+
 ws-push-zmq-event-collector
 ----------------------------
 Project that connects to Bose SoundTouch over WebSocketw and pushes the WebSocket messages to a secure ZeroMQ TCP PULL socket
