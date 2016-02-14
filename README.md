@@ -19,3 +19,8 @@ Project that connects to ZeroMQ TCP PUSH socket, receives messages and passes th
 
 3) - `push-zmq-event-collector-tester` :
 Test project that pushes events (numbers incrementing) to ZeroMQ TCP PULL socket 
+
+
+Project Topology :
+-------------------
+![Topology](https://github.com/redsofa/zmq-soundtouch/blob/master/docs/topology.jpg "Topology")
