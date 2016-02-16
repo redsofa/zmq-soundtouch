@@ -27,50 +27,87 @@
   <body>
 
     <div class="container-fluid">
-	<div class="row">
-		<div class="col-md-12">
-			<div class="row">
-				<div class="col-md-12">
-					<h2>
-						Coloring My SoundTouch Events
-					</h2>
+		<div class="row">
+			<div class="col-md-12">
+				<div class="row">
+					<div class="col-md-12">
+						<h2>
+							Coloring My SoundTouch Events
+						</h2>
+ 
+						<p>
+	    					What is this visualization ? It's a representation of the live WebSocket notifications that are sent from my Bose SoundTouch at home. 
+							<br>
+	    					Hover over the dots in the The SoundTouch Events visualization to see what kinds of events these dots correspond to. 
+	    					<br>
+	    					The Rolling Events log keeps track of the last 10 events.
+						</p>
 
-					<p>
-    					What is this visualization ? It's a representation of the live WebSocket notifications that are sent from my Bose SoundTouch at home. 
-					</p>
+						<p>
+							
+	    					Source for this project can be found here : <a target ="_blank" href="https://github.com/redsofa/zmq-soundtouch">GitHub Link</a>
+						</p>
+						
+					</div>
 
-					<p>
-    					Hover over the dots in the The SoundTouch Events visualization to see what kinds of events these dots correspond to. The Rolling Events log keeps track 
-    					of the last 10 events.
-					</p>
+					<div class="col-md-9 col-md-offset-1 text-center">
+						<hr>
+					</div>
 
-					<p>
-    					Source for this project can be found here : <a target ="_blank" href="https://github.com/redsofa/zmq-soundtouch">GitHub Link</a>
-					</p>
-				</div>
+					<div class="col-md-6">
+						<h2>
+							SoundTouch Events
+						</h2>
+						<p>
+	    					<div id = "visDiv"></div>
+						</p>
+					</div>
 
+					<div class="col-md-4">
+						<h2>
+							Rolling Event Log
+						</h2>
+						<p>
+							<div class="bordered" id="log"></div>
+						</p>
+					</div>
 
-				<div class="col-md-6">
-					<h2>
-						SoundTouch Events
-					</h2>
-					<p>
-    					<div id = "visDiv"></div>
-					</p>
-				</div>
-				<div class="col-md-4">
-					<h2>
-						Rolling Event Log
-					</h2>
-					<p>
-						<div id="log"></div>
-					</p>
 				</div>
 			</div>
 		</div>
 	</div>
-</div>
 
+	<div class="container-fluid">
+		<div class="row">
+		  <div class="col-md-9 col-md-offset-1 text-center">
+		    <hr>
+		    <div id="disqus_thread"></div>
+			<script type="text/javascript">
+		 
+			    var disqus_shortname = 'redsofa';
+
+			     
+			    (function() {
+			        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+			        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+			        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+			    })();
+			</script>
+			<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+		  </div>
+		</div>
+	</div>
+
+	<footer id="footer">
+	  <div class="container">
+	    <div class="row">
+	      <div class="col-md-6 col-md-offset-3 text-center">
+	        <hr>
+	        <p>Copyright © Rene Richard 2012–2016</p>
+	      </div>
+	    </div>
+	  </div>
+	</footer>
 
   </body>
 </html>

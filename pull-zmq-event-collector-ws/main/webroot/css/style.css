@@ -28,3 +28,6 @@ div.grey {
     opacity: 0.5;
 } 
 
+.bordered{
+    border:solid 1px black;
+}
