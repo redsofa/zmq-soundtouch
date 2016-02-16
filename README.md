@@ -1,6 +1,6 @@
 zmq-soundtouch
 ---------------
-A series of projects exploring secure ZeroMQ connections and SoundTouch event data collection. Result is live data update visualization from SoundTouch as seen below. 
+A series of projects exploring secure ZeroMQ connections and SoundTouch event data collection. Result  is a live SoundTouch event data visualization as seen below. 
 
 
 ![Screencast](https://github.com/redsofa/zmq-soundtouch/blob/master/docs/demo.gif "Screencast")
