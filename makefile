@@ -1,6 +1,6 @@
 GOPATH := $(HOME)/dev/git/go
 
-all: clean dist-dir build-pull-zmq-event-collector-ws build-ws-push-zmq-event-collector
+all: clean dist-dir build-pull-zmq-event-collector-ws build-ws-push-zmq-event-collector build-push-zmq-event-collector-tester
 
 dist-dir:
 	mkdir ./dist
@@ -21,6 +21,15 @@ build-ws-push-zmq-event-collector:
 	mkdir ./dist/ws-push-zmq-event-collector
 	go build -o ./dist/ws-push-zmq-event-collector/ws-to-push ws-push-zmq-event-collector/main/main.go
 	cp ws-push-zmq-event-collector/main/config.json ./dist/ws-push-zmq-event-collector/config.json
+
+
+build-push-zmq-event-collector-tester:
+	@echo Building push-zmq-event-collector-tester
+	@echo Using Go Path :
+	@echo $(GOPATH)
+	mkdir ./dist/push-zmq-event-collector-tester
+	go build -o ./dist/push-zmq-event-collector-tester/push-test push-zmq-event-collector-tester/main/main.go
+	cp push-zmq-event-collector-tester/main/config.json ./dist/push-zmq-event-collector-tester/config.json
 
 clean:
 	@echo Cleaning ...
