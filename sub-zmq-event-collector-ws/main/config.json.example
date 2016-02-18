@@ -1,0 +1,6 @@
+{    
+	"WebServerPort" : "8081",
+    "EventCollectorPort" : "8999",
+    "LocalPrivateKey" : "<YOUR LOCAL PRIVATE KEY>",
+    "RemotePublicKey" : "<REMOTE BOX PUBLIC KEY>"
+}
