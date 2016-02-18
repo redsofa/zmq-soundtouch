@@ -1,18 +1,18 @@
 GOPATH := $(HOME)/dev/git/go
 
-all: clean dist-dir build-pull-zmq-event-collector-ws build-ws-push-zmq-event-collector build-push-zmq-event-collector-tester
+all: clean dist-dir build-sub-zmq-event-collector-ws build-ws-push-zmq-event-collector build-push-zmq-event-collector-tester
 
 dist-dir:
 	mkdir ./dist
 
-build-pull-zmq-event-collector-ws:
-	@echo Building pull-zmq-event-collector-ws
+build-sub-zmq-event-collector-ws:
+	@echo Building sub-zmq-event-collector-ws
 	@echo Using Go Path :
 	@echo $(GOPATH)
-	mkdir ./dist/pull-zmq-event-collector-ws
-	go build -o ./dist/pull-zmq-event-collector-ws/pull-to-ws pull-zmq-event-collector-ws/main/main.go
-	cp pull-zmq-event-collector-ws/main/config.json ./dist/pull-zmq-event-collector-ws/config.json
-	cp -r pull-zmq-event-collector-ws/main/webroot ./dist/pull-zmq-event-collector-ws/
+	mkdir ./dist/sub-zmq-event-collector-ws
+	go build -o ./dist/sub-zmq-event-collector-ws/sub-to-ws sub-zmq-event-collector-ws/main/main.go
+	cp sub-zmq-event-collector-ws/main/config.json ./dist/sub-zmq-event-collector-ws/config.json
+	cp -r sub-zmq-event-collector-ws/main/www ./dist/sub-zmq-event-collector-ws/
 
 build-ws-push-zmq-event-collector:
 	@echo Building ws-push-zmq-event-collector
@@ -21,7 +21,6 @@ build-ws-push-zmq-event-collector:
 	mkdir ./dist/ws-push-zmq-event-collector
 	go build -o ./dist/ws-push-zmq-event-collector/ws-to-push ws-push-zmq-event-collector/main/main.go
 	cp ws-push-zmq-event-collector/main/config.json ./dist/ws-push-zmq-event-collector/config.json
-
 
 build-push-zmq-event-collector-tester:
 	@echo Building push-zmq-event-collector-tester
