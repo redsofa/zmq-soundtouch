@@ -12,7 +12,7 @@ build-sub-zmq-event-collector-ws:
 	mkdir ./dist/sub-zmq-event-collector-ws
 	go build -o ./dist/sub-zmq-event-collector-ws/sub-to-ws sub-zmq-event-collector-ws/main/main.go
 	cp sub-zmq-event-collector-ws/main/config.json ./dist/sub-zmq-event-collector-ws/config.json
-	cp -r sub-zmq-event-collector-ws/main/www ./dist/sub-zmq-event-collector-ws/
+	cp -r sub-zmq-event-collector-ws/main/webroot ./dist/sub-zmq-event-collector-ws/
 
 build-ws-push-zmq-event-collector:
 	@echo Building ws-push-zmq-event-collector

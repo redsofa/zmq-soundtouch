@@ -1,9 +1,8 @@
 package config
 
 import (
-	"../logger"
 	"encoding/json"
-	"log"
+	"github.com/redsofa/zmq-soundtouch/sub-zmq-event-collector-ws/logger"
 	"os"
 )
 
@@ -16,19 +15,22 @@ type Config struct {
 	RemotePublicKey    string
 }
 
-func ReadServiceConfig(directory string) {
+func ReadServiceConfig(directory string) error {
 	logger.Info.Println("Reading Config : ", directory, "config.json")
 	f, err := os.Open(directory + "config.json")
 	defer f.Close()
 
 	if err != nil {
-		log.Println(err)
+		logger.Error.Println(err)
+		return err
 	}
 
 	decoder := json.NewDecoder(f)
 
 	err = decoder.Decode(&ServerConfig)
 	if err != nil {
-		log.Println(err)
+		logger.Error.Println(err)
+		return err
 	}
+	return nil
 }
