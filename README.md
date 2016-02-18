@@ -23,4 +23,4 @@ Test project that pushes events (numbers incrementing) to ZeroMQ TCP PULL socket
 
 Project Topology :
 -------------------
-![Topology](https://github.com/redsofa/zmq-soundtouch/blob/master/docs/topology.jpg "Topology")
+![Topology](https://github.com/redsofa/zmq-soundtouch/blob/master/docs/topology.png "Topology")
