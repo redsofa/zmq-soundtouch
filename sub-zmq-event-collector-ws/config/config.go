@@ -1,12 +1,13 @@
 package config
 
 import (
+	"../logger"
 	"encoding/json"
 	"log"
 	"os"
 )
 
-var ClientConf Config
+var ServerConfig Config
 
 type Config struct {
 	WebServerPort      string
@@ -15,8 +16,8 @@ type Config struct {
 	RemotePublicKey    string
 }
 
-func ReadConf(directory string) {
-	log.Println("Reading Config : ", directory, "config.json")
+func ReadServiceConfig(directory string) {
+	logger.Info.Println("Reading Config : ", directory, "config.json")
 	f, err := os.Open(directory + "config.json")
 	defer f.Close()
 
@@ -26,7 +27,7 @@ func ReadConf(directory string) {
 
 	decoder := json.NewDecoder(f)
 
-	err = decoder.Decode(&ClientConf)
+	err = decoder.Decode(&ServerConfig)
 	if err != nil {
 		log.Println(err)
 	}
