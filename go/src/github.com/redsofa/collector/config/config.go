@@ -2,7 +2,7 @@ package config
 
 import (
 	"encoding/json"
-	"github.com/redsofa/zmq-soundtouch/sub-zmq-event-collector-ws/logger"
+	"github.com/redsofa/collector/logger"
 	"os"
 )
 

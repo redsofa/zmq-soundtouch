@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	zmq "github.com/pebbe/zmq4"
-	"github.com/redsofa/zmq-soundtouch/push-zmq-event-collector-tester/config"
+	"github.com/redsofa/soundtouch-simulator/config"
 	"os"
 	"time"
 )

@@ -2,8 +2,8 @@ package main
 
 import (
 	"github.com/gorilla/mux"
-	"github.com/redsofa/zmq-soundtouch/sub-zmq-event-collector-ws/config"
-	"github.com/redsofa/zmq-soundtouch/sub-zmq-event-collector-ws/logger"
+	"github.com/redsofa/collector/config"
+	"github.com/redsofa/collector/logger"
 	"io/ioutil"
 	"net/http"
 	"os"
