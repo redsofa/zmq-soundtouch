@@ -15,7 +15,7 @@ Main Project List :
 
 3) - ./python/`cache`.py - Project that connects to ZeroMQ TCP PUB socket, creates a cache containing a list of recent SoundTouch notification messages	and makes them available over a ZeroMQ Router socket.
 
-4) - ./go/src/github.com/redsofa/`collector` - Project that connects to ZeroMQ TCP PUB socket, notificaton receives messages and passes them on to WebSocket clients. Project also connects to ZeroMQ Router socket to get a list of most recent messages. In addition, it serves static web content.
+4) - ./go/src/github.com/redsofa/`collector` - Project that connects to ZeroMQ TCP PUB socket, receives notification messages and passes them on to WebSocket clients. Project also connects to ZeroMQ Router socket to get a list of most recent messages. In addition, it serves static web content.
 
 
 Project Topology :
