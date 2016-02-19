@@ -11,6 +11,12 @@ go-deps:
 dist-dir:
 	mkdir ./dist
 
+run-collector:
+	@echo Running collector
+	@echo Using Go Path :
+	@echo $(GOPATH)
+	$ (cd src/github.com/redsofa/collector/main; go run main.go)	
+
 build-collector: clean dist-dir 
 	@echo Building collector
 	@echo Using Go Path :
