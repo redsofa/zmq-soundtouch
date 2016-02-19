@@ -20,11 +20,11 @@ along with zmq-soundtouch.  If not, see <http://www.gnu.org/licenses/>.
 package messaging
 
 type Payload struct {
-	Author  string `json:"author"`
+	Source  string `json:"source"`
 	Message string `json:"message"`
 }
 
 //Stringer interface impl
 func (p *Payload) String() {
-	return self.Author + " - " + self.Message
+	return self.Source + " - " + self.Message
 }
