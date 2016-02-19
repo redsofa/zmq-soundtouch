@@ -1,23 +1,5 @@
 package main
 
-/*
- * on Mac :
- * --------
- * ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/uninstall)"
- * /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
- * brew install pkg-config
- * brew install libsodium
- * ./configure --with-libsodium
- * make
- * make install
- * go get github.com/pebbe/zmq4
- * go get golang.org/x/net/websocket
- *
- * on Linux :
- * ----------
- * http://mythinkpond.com/2015/09/06/how-to-install-and-configure-zeromq-libsodium-on-centos-6-7/
- */
-
 import (
 	"fmt"
 	zmq "github.com/pebbe/zmq4"
