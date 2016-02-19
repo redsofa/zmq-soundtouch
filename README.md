@@ -11,7 +11,7 @@ Main Project List :
 
 1) - ./go/src/github.com/redsofa/`soundtouch` - Project that connects to Bose SoundTouch over WebSocket and pushes event notification messages to a secure ZeroMQ TCP PULL socket
 
-2) - `./python/`publisher`.py` - Project that connects to secure TCP PUSH socket, receives SoundTouch notifications and broadcasts them to subscribers.
+2) - ./python/`publisher`.py - Project that connects to secure TCP PUSH socket, receives SoundTouch notifications and broadcasts them to subscribers.
 
 3) - ./python/`cache`.py - Project that connects to ZeroMQ TCP PUB socket, creates a cache containing a list of recent SoundTouch notification messages	and makes them available over a ZeroMQ Router socket.
 
