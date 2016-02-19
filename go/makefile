@@ -11,6 +11,10 @@ go-deps:
 dist-dir:
 	mkdir ./dist
 
+godoc:
+	godoc -http=:6060
+	$ (cd src/github.com/redsofa/; godoc -http=:6060)
+
 run-collector:
 	@echo Running collector
 	@echo Using Go Path :
