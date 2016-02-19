@@ -21,3 +21,9 @@ Main Project List :
 Project Topology :
 -------------------
 ![Topology](https://github.com/redsofa/zmq-soundtouch/blob/master/docs/topology.png "Topology")
+
+
+License
+-------
+
+This project is licensed under AGPL V3. See COPYING file for a copy of the included license or visit http://www.gnu.org/licenses/.
