@@ -21,7 +21,7 @@ package config
 
 import (
 	"encoding/json"
-	"github.com/redsofa/collector/logger"
+	"github.com/redsofa/logger"
 	"os"
 )
 

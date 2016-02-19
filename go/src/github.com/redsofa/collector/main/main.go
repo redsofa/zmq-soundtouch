@@ -21,7 +21,7 @@ package main
 import (
 	"github.com/gorilla/mux"
 	"github.com/redsofa/collector/config"
-	"github.com/redsofa/collector/logger"
+	"github.com/redsofa/logger"
 	"io/ioutil"
 	"net/http"
 	"os"
