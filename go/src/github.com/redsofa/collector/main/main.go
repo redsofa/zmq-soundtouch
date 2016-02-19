@@ -21,14 +21,11 @@ package main
 import (
 	"github.com/gorilla/mux"
 	"github.com/redsofa/collector/config"
+	"github.com/redsofa/collector/version"
 	"github.com/redsofa/logger"
 	"io/ioutil"
 	"net/http"
 	"os"
-)
-
-const (
-	SERVER_VERSION = "0.0.1"
 )
 
 func init() {
@@ -44,7 +41,7 @@ func main() {
 	//The port our server listens on
 	listenPort := config.ServerConfig.WebServerPort
 
-	logger.Info.Printf("Sever Starting - Listing on port %s - (Version - %s)", listenPort, SERVER_VERSION)
+	logger.Info.Printf("Sever Starting - Listing on port %s - (Version - %s)", listenPort, version.APP_VERSION)
 
 	router := mux.NewRouter()
 	//Our static content
