@@ -1,0 +1,230 @@
+div.red {
+    background-color:red;
+    opacity: 0.5;
+} 
+
+div.green {
+    background-color:green;
+    opacity: 0.5;
+} 
+
+div.yellow {
+    background-color:yellow;
+    opacity: 0.5;
+} 
+
+div.orange {
+    background-color:orange;
+    opacity: 0.5;
+} 
+
+div.lightblue {
+    background-color:lightblue;
+    opacity: 0.5;
+} 
+
+div.grey {
+    background-color:grey;
+    opacity: 0.5;
+} 
+
+.bordered{
+    border:solid 1px black;
+}
+
+
+/*========================================================
+  Bootstrap Overrides
+========================================================*/
+
+body,
+p,
+.btn {
+  font-family: "franklin-gothic-urw", Helvetica, sans-serif;
+  font-size: 17px;
+  font-weight: 400;
+}
+
+p,
+ul,
+ol {
+  line-height: 1.6;
+  margin: 0 0 1.55em 0;
+}
+
+a {
+  color: #15b1bb;
+}
+  a:hover {
+    color: #0d6e74;
+  }
+
+em {
+  background: #ffffcf;
+  color: #b03d14;
+  font-style: normal;
+  padding: 0.1em 0.4em;
+}
+
+ul, 
+ol {
+  padding-left: 1.25em;
+  margin: 1.55em 0;
+}
+ul ul,
+ul ol,
+ol ol,
+ol ul {
+  margin: 1em 0;
+}
+
+h1,
+h2,
+h3 {
+  font-family: "adelle", Helvetica, sans-serif;
+  font-weight: 600;
+}
+
+h1 {
+  font-size: 55px;
+}
+
+h2 {
+  border-bottom: 1px solid #eee;
+  color: #b03d14;
+  font-size: 24px;
+  margin: 1.6em 0 0.6em 0;
+  padding-bottom: 0.2em;
+}
+
+h3 {
+  color: #555;
+  font-size: 18px;
+  margin: 1.5em 0 0.5em 0;
+}
+
+.btn,
+.btn-default,
+.btn-primary {
+  border: 0;
+}
+
+.btn-primary {
+  background-color: #15b1bb;
+}
+  .btn-primary:hover {
+    background-color: #0d6e74;
+  }
+
+.breadcrumb {
+  background-color: transparent;
+  font-size: 14px;
+  padding: 0;
+}
+
+.page-header {
+  font-size: 45px;
+  margin: 0 0 0.5em 0
+}
+
+.alert-success {
+  background: #55cd51;
+  border: none;
+  color: white;
+}
+
+.container {
+  max-width: 840px;
+}
+
+
+/*========================================================
+  Main Content
+========================================================*/
+
+.main-content {
+  padding-top: 2em;
+}
+
+
+/*========================================================
+  Homepage
+========================================================*/
+
+.hompage-jumbotron {
+  background: url('http://www.redsofa.ca/api/images') no-repeat;
+  -webkit-background-size: cover;
+  background-size: cover;
+  margin-top: -1.2em;
+  padding-bottom: 4em;
+  padding-top: 4em;
+}
+  .hompage-jumbotron h1,
+  .hompage-jumbotron .lead {
+    color: white;
+    text-shadow: 1px 1px 0 black;
+  }
+  .hompage-jumbotron .lead {
+    font-size: 26px;
+    margin-bottom: 2em;
+  }
+
+
+/*========================================================
+  Navigation
+========================================================*/
+
+.page-nav {
+  /*background: #f2f4ef url('/img/gray-grid.png');*/
+  border-radius: 0;
+  border-bottom: 1px solid #e3e3e3;
+  /*margin: 0 0 2.5em 0;*/
+  padding: 0.25em 0;
+}
+  .page-nav .navbar-brand {
+    font-family: "adelle", Helvetica, sans-serif;
+  }
+  .page-nav .navbar-toggle,
+  .page-nav .navbar-nav {
+    margin-top: 3em;
+  }
+
+
+/*========================================================
+  Footer
+========================================================*/
+
+.page-footer {
+  /*background: #f2f4ef url('/static/img/gray-grid.png');*/
+  border-bottom: 1px solid #e3e3e3;
+  border-top: 1px solid #e3e3e3;
+  margin-top: 4em;
+  padding: 4em 0;
+}
+  .page-footer h3 {
+    margin-top: 0em;
+  }
+
+
+/*========================================================
+  Member Section
+========================================================*/
+
+.member-summary {
+  margin: 3em 0;
+}
+  .member-summary-header {
+    margin-top: 0;
+  }
+  .member-summary-avatar {
+    max-width: 200px;
+  }
+
+
+/*========================================================
+  Block Image Shortcode
+========================================================*/
+
+.block-image {
+  margin: 1.25em 0;
+}

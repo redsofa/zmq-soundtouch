@@ -21,7 +21,7 @@ package main
 import (
 	"fmt"
 	zmq "github.com/pebbe/zmq4"
-	"github.com/redsofa/zmq-soundtouch/ws-push-zmq-event-collector/config"
+	"github.com/redsofa/soundtouch/config"
 	"golang.org/x/net/websocket"
 	"io"
 	"os"
