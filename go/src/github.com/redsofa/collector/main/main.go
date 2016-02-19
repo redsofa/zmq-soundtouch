@@ -21,6 +21,7 @@ package main
 import (
 	"github.com/gorilla/mux"
 	"github.com/redsofa/collector/config"
+	"github.com/redsofa/collector/handlers"
 	"github.com/redsofa/collector/version"
 	"github.com/redsofa/logger"
 	"io/ioutil"
@@ -43,12 +44,16 @@ func main() {
 
 	logger.Info.Printf("Sever Starting - Listing on port %s - (Version - %s)", listenPort, version.APP_VERSION)
 
+	//TODO :
+	// Start up the websocket server
+	//server := messaging.NewServer("/ws")
+	//go server.Listen()
+
+	//Setup router
 	router := mux.NewRouter()
 	//Our static content
 	router.PathPrefix("/").Handler(http.FileServer(http.Dir("./webroot")))
 
 	//Listen for connections and serve content
-
-	//TODO add logger middleware
-	logger.Info.Println(http.ListenAndServe(":"+listenPort, router))
+	logger.Info.Println(http.ListenAndServe(":"+listenPort, handlers.HttpLog(router)))
 }
