@@ -1,5 +1,7 @@
-/*
-Copyright 2016 Rene Richard
+#!/usr/bin/env python
+
+"""
+Copyright 2016 Andriy Drozdyuk
 
 This file is part of zmq-soundtouch.
 
@@ -15,37 +17,23 @@ GNU Affero General Public License for more details.
 
 You should have received a copy of the GNU Affero General Public License
 along with zmq-soundtouch.  If not, see <http://www.gnu.org/licenses/>.
-*/
-package config
+"""
 
-import (
-	"encoding/json"
-	"log"
-	"os"
-)
+from os.path import dirname
+import shutil
+import zmq
+from zmq.auth import create_certificates
 
-var ClientConf Config
+def create_keys(indir):
+    """
+    Generate client and server keys
+    """
+    create_certificates(indir, "client")
+    create_certificates(indir, "server")
 
-type Config struct {
-	PushServerIP    string
-	PushServerPort  string
-	ClientSecretKey string
-	ServerPublicKey string
-	ClientPublicKey string
-}
+if __name__ == '__main__':
+	version_info = zmq.zmq_version_info()
+	if version_info < (4,0):
+		raise ValueError("ZMQ version < 4 does not support curve crypto. Current version: %s" % zmq.zmq_version())
 
-func ReadConf(directory string) {
-	f, err := os.Open(directory + "config.json")
-	defer f.Close()
-
-	if err != nil {
-		log.Println(err)
-	}
-
-	decoder := json.NewDecoder(f)
-
-	err = decoder.Decode(&ClientConf)
-	if err != nil {
-		log.Println(err)
-	}
-}
+	create_keys(dirname(__file__))
