@@ -42,7 +42,7 @@ func NewDealer() *dealer {
 
 	client, err := ctx.NewSocket(zmq.DEALER)
 
-	//TODO fix...
+	//TODO fix...log and bail
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -50,67 +50,65 @@ func NewDealer() *dealer {
 	return &dealer{ctx, msgChan, doneChan, errChan, client}
 }
 
-func (d *dealer) readMessages() {
+func (this *dealer) processMessages() {
 	for {
 		select {
 		//We receive a message on the message channel
-		case msg := <-d.msgChan:
-			fmt.Println(msg)
-		//We have an error
-		case err := <-d.errChan:
-			d.errChan <- err // for receiveMessages method
+		case msg := <-this.msgChan:
+			fmt.Println("Processing Message: " + msg)
+		//We have an error on the error channel
+		case err := <-this.errChan:
+			fmt.Println("Error in Processing Messages: ", err)
+			this.errChan <- err // for receiveMessages method
 			return
 		//We're done
-		case <-d.doneChan:
-			d.doneChan <- true // for receiveMessages method
+		case <-this.doneChan:
+			fmt.Println("Done Processing Messages")
 			return
 		}
-
 	}
 }
 
-func (d *dealer) receiveMessages() {
+func (this *dealer) receiveMessages() {
 	for {
 		select {
 		//We have an error
-		case err := <-d.errChan:
-			d.errChan <- err // for readMessages method
+		case err := <-this.errChan:
+			this.errChan <- err // to notify processMessages()
 			return
 
 		// read data from socket connection (loop)
 		default:
-			reply, err := d.client.Recv(0)
+			reply, err := this.client.Recv(0)
 
 			if err != nil {
-				d.errChan <- err
+				this.errChan <- err
 			}
-
 			if strings.Compare(reply, "KTHXBYE") == 0 {
-				fmt.Println("done in reading cache")
-				d.doneChan <- true // for recieveMessages method
+				fmt.Println("Done reading cache")
+				this.doneChan <- true //to notify processMessages()
 				return
 			} else {
-				d.msgChan <- reply
+				this.msgChan <- reply //will be picked up by processMessages()
 			}
 
 		}
 	}
 }
 
-func (d *dealer) Start() {
-	defer d.ctx.Term()
+func (this *dealer) Start() {
+	defer this.ctx.Term()
 
 	//TODO log
 	fmt.Println("Starting...")
 
 	//TODO config
-	d.client.Connect("tcp://127.0.0.1:8000")
-	defer d.client.Close()
+	this.client.Connect("tcp://127.0.0.1:8000")
+	defer this.client.Close()
 
 	//TODO config
-	d.client.Send("ICANHAZ?", 0)
+	this.client.Send("ICANHAZ?", 0)
 
-	go d.readMessages()
-	d.receiveMessages()
-	fmt.Println("ddddf")
+	go this.processMessages()
+	this.receiveMessages()
 }
