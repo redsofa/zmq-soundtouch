@@ -20,16 +20,25 @@ along with zmq-soundtouch.  If not, see <http://www.gnu.org/licenses/>.
 package messaging
 
 import (
-	zmq "github.com/pebbe/zmq4"
-	"github.com/redsofa/collector/config"
-	"log"
-	"runtime"
+//zmq "github.com/pebbe/zmq4"
+//"github.com/redsofa/collector/config"
+//"log"
+//"runtime"
 )
 
-func PushZmqMessages(msgChan chan string, wsServer Server) {
+//TODO : Implement
+type zmqSub struct {
+}
+
+func NewZmqSub() {
+
+}
+
+/*
+func PushZmqMessages(msgChan chan string, wsServer WebSocketServer) {
 	for msg := range msgChan {
 		log.Println("RECEIVED ON ZMQ SOCKET (from msgChan) : ", msg)
-		wsMsg := &Message{"SoundTouch", msg}
+		wsMsg := &Payload{"SoundTouch", msg}
 		wsServer.SendAll(wsMsg)
 	}
 }
@@ -80,3 +89,4 @@ func BindToZmqTcpPort(msgChan chan string) {
 	//Stop Auth engine
 	zmq.AuthStop()
 }
+*/

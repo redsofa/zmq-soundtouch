@@ -18,13 +18,3 @@ along with zmq-soundtouch.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 package messaging
-
-type Payload struct {
-	Source  string `json:"source"`
-	Message string `json:"message"`
-}
-
-//Stringer interface impl
-func (p *Payload) String() string {
-	return p.Source + " - " + p.Message
-}

@@ -19,12 +19,13 @@ along with zmq-soundtouch.  If not, see <http://www.gnu.org/licenses/>.
 
 package messaging
 
-type Payload struct {
-	Source  string `json:"source"`
-	Message string `json:"message"`
-}
+import (
+	"testing"
+)
 
-//Stringer interface impl
-func (p *Payload) String() string {
-	return p.Source + " - " + p.Message
+func TestFail(t *testing.T) {
+	dealer := NewDealer()
+	dealer.Start()
+
+	t.Error("Should Fail")
 }
