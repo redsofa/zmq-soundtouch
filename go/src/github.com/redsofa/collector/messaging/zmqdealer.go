@@ -64,6 +64,8 @@ func (this *dealer) processMessages() {
 		//We receive a message on the message channel
 		case msg := <-this.msgChan:
 			logger.Info.Println("Processing Message: " + msg)
+			//TODO : Relay cached messages over to WebSocket client. Should be method call on websocketclient
+
 		//We have an error on the error channel
 		case err := <-this.errChan:
 			logger.Error.Println("Error : ", err)
