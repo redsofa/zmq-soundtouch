@@ -20,7 +20,6 @@ along with zmq-soundtouch.  If not, see <http://www.gnu.org/licenses/>.
 package messaging
 
 import (
-	//	"errors"
 	"fmt"
 	zmq "github.com/pebbe/zmq4"
 	"strings"
@@ -51,34 +50,18 @@ func NewDealer() *dealer {
 	return &dealer{ctx, msgChan, doneChan, errChan, client}
 }
 
-func (d *dealer) GetCacheContent() {
-	d.msgChan <- "ICANHAZ"
-}
-
-func (d *dealer) Error(err error) {
-	d.errChan <- err
-}
-
-func (d *dealer) Done() {
-	d.doneChan <- true
-}
-
 func (d *dealer) readMessages() {
-
 	for {
+		fmt.Println("buba")
 		select {
-
 		//We receive a message on the message channel
 		case msg := <-d.msgChan:
-			fmt.Println("received : ", msg)
-
 			if strings.Compare(msg, "KTHXBYE") == 0 {
+				fmt.Println("done in reading cache")
 				d.doneChan <- true // for recieveMessages method
 				return
 			} else {
-				fmt.Println("Got Message")
 				fmt.Println(msg)
-				return
 			}
 		//We have an error
 		case err := <-d.errChan:
@@ -94,8 +77,8 @@ func (d *dealer) readMessages() {
 }
 
 func (d *dealer) receiveMessages() {
-
 	for {
+		fmt.Println("buba jo")
 		select {
 		//We have an error
 		case err := <-d.errChan:
@@ -118,49 +101,22 @@ func (d *dealer) receiveMessages() {
 			d.msgChan <- reply
 		}
 	}
-
 }
 
 func (d *dealer) Start() {
-
 	defer d.ctx.Term()
 
 	//TODO log
 	fmt.Println("Starting...")
 
+	//TODO config
 	d.client.Connect("tcp://127.0.0.1:8000")
 	defer d.client.Close()
 
+	//TODO config
 	d.client.Send("ICANHAZ?", 0)
 
 	go d.readMessages()
 	d.receiveMessages()
-
+	fmt.Println("ddddf")
 }
-
-/*
-func (d *dealer) Start() {
-	defer d.ctx.Term()
-
-	//TODO log
-	fmt.Println("Starting...")
-	client, err := d.ctx.NewSocket(zmq.DEALER)
-
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	client.Connect("tcp://127.0.0.1:8000")
-	defer client.Close()
-
-	client.Send("ICANHAZ?", 0)
-
-	for {
-		reply, _ := client.Recv(0)
-		fmt.Println("received : ", reply)
-		if strings.Compare(reply, "KTHXBYE") == 0 {
-			return
-		}
-	}
-
-}*/
