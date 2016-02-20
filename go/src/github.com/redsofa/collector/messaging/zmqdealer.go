@@ -78,6 +78,7 @@ func (d *dealer) readMessages() {
 			} else {
 				fmt.Println("Got Message")
 				fmt.Println(msg)
+				return
 			}
 		//We have an error
 		case err := <-d.errChan:
