@@ -20,6 +20,7 @@ along with zmq-soundtouch.  If not, see <http://www.gnu.org/licenses/>.
 package messaging
 
 import (
+	//	"errors"
 	"fmt"
 	zmq "github.com/pebbe/zmq4"
 	"strings"
@@ -29,6 +30,8 @@ type dealer struct {
 	ctx      *zmq.Context
 	msgChan  chan string
 	doneChan chan bool
+	errChan  chan error
+	client   *zmq.Socket
 }
 
 func NewDealer() *dealer {
@@ -36,18 +39,105 @@ func NewDealer() *dealer {
 
 	msgChan := make(chan string)
 	doneChan := make(chan bool)
+	errChan := make(chan error)
 
-	return &dealer{ctx, msgChan, doneChan}
+	client, err := ctx.NewSocket(zmq.DEALER)
+
+	//TODO fix...
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	return &dealer{ctx, msgChan, doneChan, errChan, client}
 }
 
-func (d *dealer) MakeCacheRequest() {
+func (d *dealer) GetCacheContent() {
 	d.msgChan <- "ICANHAZ"
+}
+
+func (d *dealer) Error(err error) {
+	d.errChan <- err
 }
 
 func (d *dealer) Done() {
 	d.doneChan <- true
 }
 
+func (d *dealer) readMessages() {
+
+	for {
+		select {
+
+		//We receive a message on the message channel
+		case msg := <-d.msgChan:
+			fmt.Println("received : ", msg)
+
+			if strings.Compare(msg, "KTHXBYE") == 0 {
+				d.doneChan <- true // for recieveMessages method
+				return
+			} else {
+				fmt.Println("Got Message")
+				fmt.Println(msg)
+			}
+		//We have an error
+		case err := <-d.errChan:
+			d.errChan <- err // for receiveMessages method
+			return
+		//We're done
+		case <-d.doneChan:
+			d.doneChan <- true // for receiveMessages method
+			return
+		}
+
+	}
+}
+
+func (d *dealer) receiveMessages() {
+
+	for {
+		select {
+		//We have an error
+		case err := <-d.errChan:
+			d.errChan <- err // for readMessages method
+			return
+
+		//We're done
+		case <-d.doneChan:
+			d.doneChan <- true // for readMessages method
+			return
+
+		// read data from socket connection (loop)
+		default:
+			reply, err := d.client.Recv(0)
+
+			if err != nil {
+				d.errChan <- err
+			}
+
+			d.msgChan <- reply
+		}
+	}
+
+}
+
+func (d *dealer) Start() {
+
+	defer d.ctx.Term()
+
+	//TODO log
+	fmt.Println("Starting...")
+
+	d.client.Connect("tcp://127.0.0.1:8000")
+	defer d.client.Close()
+
+	d.client.Send("ICANHAZ?", 0)
+
+	go d.readMessages()
+	d.receiveMessages()
+
+}
+
+/*
 func (d *dealer) Start() {
 	defer d.ctx.Term()
 
@@ -72,4 +162,4 @@ func (d *dealer) Start() {
 		}
 	}
 
-}
+}*/

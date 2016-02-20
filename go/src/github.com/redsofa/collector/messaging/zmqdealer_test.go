@@ -23,7 +23,7 @@ import (
 	"testing"
 )
 
-func TestFail(t *testing.T) {
+func TestDealer(t *testing.T) {
 	dealer := NewDealer()
 	dealer.Start()
 
