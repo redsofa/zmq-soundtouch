@@ -52,17 +52,10 @@ func NewDealer() *dealer {
 
 func (d *dealer) readMessages() {
 	for {
-		fmt.Println("buba")
 		select {
 		//We receive a message on the message channel
 		case msg := <-d.msgChan:
-			if strings.Compare(msg, "KTHXBYE") == 0 {
-				fmt.Println("done in reading cache")
-				d.doneChan <- true // for recieveMessages method
-				return
-			} else {
-				fmt.Println(msg)
-			}
+			fmt.Println(msg)
 		//We have an error
 		case err := <-d.errChan:
 			d.errChan <- err // for receiveMessages method
@@ -78,16 +71,10 @@ func (d *dealer) readMessages() {
 
 func (d *dealer) receiveMessages() {
 	for {
-		fmt.Println("buba jo")
 		select {
 		//We have an error
 		case err := <-d.errChan:
 			d.errChan <- err // for readMessages method
-			return
-
-		//We're done
-		case <-d.doneChan:
-			d.doneChan <- true // for readMessages method
 			return
 
 		// read data from socket connection (loop)
@@ -98,7 +85,14 @@ func (d *dealer) receiveMessages() {
 				d.errChan <- err
 			}
 
-			d.msgChan <- reply
+			if strings.Compare(reply, "KTHXBYE") == 0 {
+				fmt.Println("done in reading cache")
+				d.doneChan <- true // for recieveMessages method
+				return
+			} else {
+				d.msgChan <- reply
+			}
+
 		}
 	}
 }
