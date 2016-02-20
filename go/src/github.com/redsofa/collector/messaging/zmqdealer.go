@@ -20,8 +20,9 @@ along with zmq-soundtouch.  If not, see <http://www.gnu.org/licenses/>.
 package messaging
 
 import (
-	"fmt"
 	zmq "github.com/pebbe/zmq4"
+	"github.com/redsofa/logger"
+	"os"
 	"strings"
 )
 
@@ -48,40 +49,40 @@ func NewDealer() *dealer {
 
 	client, err := ctx.NewSocket(zmq.DEALER)
 
-	//TODO fix...log and bail
 	if err != nil {
-		fmt.Println(err)
+		logger.Error.Println("Error openinng DEALER	socket", err)
+		os.Exit(1)
 	}
 
 	return &dealer{ctx, msgChan, doneChan, errChan, client}
 }
 
 func (this *dealer) processMessages() {
-	fmt.Println("Firing up processMessages loop")
+	logger.Info.Println("Firing up processMessages loop")
 	for {
 		select {
 		//We receive a message on the message channel
 		case msg := <-this.msgChan:
-			fmt.Println("Processing Message: " + msg)
+			logger.Info.Println("Processing Message: " + msg)
 		//We have an error on the error channel
 		case err := <-this.errChan:
-			fmt.Println("Error : ", err)
+			logger.Error.Println("Error : ", err)
 			return
 		//We're done
 		case <-this.doneChan:
-			fmt.Println("Done Processing Messages")
+			logger.Info.Println("Done Processing Messages")
 			return
 		}
 	}
 }
 
 func (this *dealer) receiveMessages() {
-	fmt.Println("Firing up receiveMessages loop")
+	logger.Info.Println("Firing up receiveMessages loop")
 	for {
 		select {
 		//We have an error
 		case err := <-this.errChan:
-			fmt.Println("Error :", err)
+			logger.Error.Println("Error :", err)
 			this.errChan <- err // to notify processMessages()
 			return
 
@@ -94,7 +95,7 @@ func (this *dealer) receiveMessages() {
 				return
 			}
 			if strings.Compare(reply, CACHE_END_TOKEN) == 0 {
-				fmt.Println("Done reading cache")
+				logger.Info.Println("Done reading cache")
 				this.doneChan <- true //to notify processMessages()
 				return
 			} else {
@@ -107,14 +108,12 @@ func (this *dealer) receiveMessages() {
 func (this *dealer) Start() {
 	defer this.ctx.Term()
 
-	//TODO log
-	fmt.Println("Starting Dealer ...")
+	logger.Info.Println("Starting Dealer ...")
 
-	//TODO config
 	this.client.Connect(ROUTER_URL)
 	defer this.client.Close()
 
-	fmt.Println("Sending request for cache conntents")
+	logger.Info.Println("Sending request for cache conntents")
 	this.client.Send(CACHE_START_TOKEN, 0)
 
 	go this.processMessages()

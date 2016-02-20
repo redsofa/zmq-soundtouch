@@ -20,8 +20,15 @@ along with zmq-soundtouch.  If not, see <http://www.gnu.org/licenses/>.
 package messaging
 
 import (
+	"github.com/redsofa/logger"
+	"io/ioutil"
+	"os"
 	"testing"
 )
+
+func init() {
+	logger.InitLogger(ioutil.Discard, os.Stdout, os.Stdout, os.Stderr)
+}
 
 func TestDealer(t *testing.T) {
 	dealer := NewDealer()
