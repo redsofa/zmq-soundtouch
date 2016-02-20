@@ -30,6 +30,7 @@ func init() {
 	logger.InitLogger(ioutil.Discard, os.Stdout, os.Stdout, os.Stderr)
 }
 
+//TODO : Write actual/useful test
 func TestDealer(t *testing.T) {
 	dealer := NewDealer()
 	dealer.Start()
