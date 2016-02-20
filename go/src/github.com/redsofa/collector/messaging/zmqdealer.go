@@ -25,6 +25,12 @@ import (
 	"strings"
 )
 
+const (
+	ROUTER_URL        = "tcp://127.0.0.1:8000"
+	CACHE_END_TOKEN   = "KTHXBYE"
+	CACHE_START_TOKEN = "ICANHAZ?"
+)
+
 type dealer struct {
 	ctx      *zmq.Context
 	msgChan  chan string
@@ -51,6 +57,7 @@ func NewDealer() *dealer {
 }
 
 func (this *dealer) processMessages() {
+	fmt.Println("Firing up processMessages loop")
 	for {
 		select {
 		//We receive a message on the message channel
@@ -58,8 +65,7 @@ func (this *dealer) processMessages() {
 			fmt.Println("Processing Message: " + msg)
 		//We have an error on the error channel
 		case err := <-this.errChan:
-			fmt.Println("Error in Processing Messages: ", err)
-			this.errChan <- err // for receiveMessages method
+			fmt.Println("Error : ", err)
 			return
 		//We're done
 		case <-this.doneChan:
@@ -70,28 +76,30 @@ func (this *dealer) processMessages() {
 }
 
 func (this *dealer) receiveMessages() {
+	fmt.Println("Firing up receiveMessages loop")
 	for {
 		select {
 		//We have an error
 		case err := <-this.errChan:
+			fmt.Println("Error :", err)
 			this.errChan <- err // to notify processMessages()
 			return
 
-		// read data from socket connection (loop)
+		//Read data from socket connection (loop)
 		default:
 			reply, err := this.client.Recv(0)
 
 			if err != nil {
 				this.errChan <- err
+				return
 			}
-			if strings.Compare(reply, "KTHXBYE") == 0 {
+			if strings.Compare(reply, CACHE_END_TOKEN) == 0 {
 				fmt.Println("Done reading cache")
 				this.doneChan <- true //to notify processMessages()
 				return
 			} else {
 				this.msgChan <- reply //will be picked up by processMessages()
 			}
-
 		}
 	}
 }
@@ -100,14 +108,14 @@ func (this *dealer) Start() {
 	defer this.ctx.Term()
 
 	//TODO log
-	fmt.Println("Starting...")
+	fmt.Println("Starting Dealer ...")
 
 	//TODO config
-	this.client.Connect("tcp://127.0.0.1:8000")
+	this.client.Connect(ROUTER_URL)
 	defer this.client.Close()
 
-	//TODO config
-	this.client.Send("ICANHAZ?", 0)
+	fmt.Println("Sending request for cache conntents")
+	this.client.Send(CACHE_START_TOKEN, 0)
 
 	go this.processMessages()
 	this.receiveMessages()
