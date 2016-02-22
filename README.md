@@ -3,7 +3,7 @@ zmq-soundtouch
 A series of projects exploring secure ZeroMQ connections and SoundTouch event data collection. Result  is the live SoundTouch event data visualization seen below. 
 
 
-![Screencast](https://github.com/redsofa/zmq-soundtouch/blob/master/docs/demo.gif "Screencast")
+![Screencast](docs/demo.gif "Screencast")
 
 
 Main Project List : 
@@ -20,7 +20,7 @@ Main Project List :
 
 Project Topology :
 -------------------
-![Topology](https://github.com/redsofa/zmq-soundtouch/blob/master/docs/topology.png "Topology")
+![Topology](docs/topology.jpg "Topology")
 
 
 License
