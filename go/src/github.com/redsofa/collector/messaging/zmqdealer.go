@@ -17,6 +17,8 @@ You should have received a copy of the GNU Affero General Public License
 along with zmq-soundtouch.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+//TODO: Might want to return payload slice and have timeout option
+
 package messaging
 
 import (
@@ -26,6 +28,7 @@ import (
 	"strings"
 )
 
+//TODO: Config
 const (
 	ROUTER_URL        = "tcp://127.0.0.1:8000"
 	CACHE_END_TOKEN   = "KTHXBYE"
@@ -58,7 +61,7 @@ func NewDealer() *dealer {
 }
 
 func (this *dealer) processMessages() {
-	logger.Info.Println("Firing up processMessages loop")
+	logger.Info.Println("Firing up dealer processMessages loop")
 	for {
 		select {
 		//We receive a message on the message channel
@@ -79,7 +82,7 @@ func (this *dealer) processMessages() {
 }
 
 func (this *dealer) receiveMessages() {
-	logger.Info.Println("Firing up receiveMessages loop")
+	logger.Info.Println("Firing up dealer receiveMessages loop")
 	for {
 		select {
 		//We have an error

@@ -18,3 +18,22 @@ along with zmq-soundtouch.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 package messaging
+
+import (
+	"github.com/redsofa/logger"
+	"io/ioutil"
+	"os"
+	"testing"
+)
+
+func init() {
+	logger.InitLogger(ioutil.Discard, os.Stdout, os.Stdout, os.Stderr)
+}
+
+//TODO : Write actual/useful test
+func TestZmqSub(t *testing.T) {
+	zmqSub := NewZmqSub()
+	zmqSub.Start()
+
+	t.Error("Should Fail")
+}

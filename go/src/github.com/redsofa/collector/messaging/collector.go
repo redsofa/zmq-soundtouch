@@ -18,3 +18,22 @@ along with zmq-soundtouch.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 package messaging
+
+type collector struct {
+	zmqDealer *dealer
+}
+
+func NewCollector() *collector {
+	zmqDealer := NewDealer()
+
+	return &collector{zmqDealer}
+}
+
+func Start() {
+	//Start up the websocket server
+	//server := NewWebSocketServer("/ws")
+	//go server.Listen()
+
+	//Start up ZMQ dealer (this is more on demand.. method may need to change...)
+	//could be make ZMQ dealer request...
+}
