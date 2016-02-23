@@ -23,151 +23,117 @@ import (
 	zmq "github.com/pebbe/zmq4"
 	"github.com/redsofa/logger"
 	"os"
+	"time"
 	//"github.com/redsofa/collector/config"
 	//"runtime"
 )
 
+//TODO : Config
 const (
 	PUB_URL = "tcp://127.0.0.1:7001"
 )
 
 type zmqSub struct {
-	ctx      *zmq.Context
-	msgChan  chan string
-	doneChan chan bool
-	errChan  chan error
-	client   *zmq.Socket
+	ctx     *zmq.Context
+	msgCh   chan string
+	doneCh  chan bool
+	errCh   chan error
+	timerCh <-chan time.Time
+	client  *zmq.Socket
 }
 
 func NewZmqSub() *zmqSub {
 	ctx, _ := zmq.NewContext()
 
-	msgChan := make(chan string)
-	doneChan := make(chan bool)
-	errChan := make(chan error)
-
+	msgCh := make(chan string)
+	doneCh := make(chan bool)
+	errCh := make(chan error)
 	client, err := ctx.NewSocket(zmq.SUB)
 
 	if err != nil {
-		logger.Error.Println("Error openinng DEALER	socket", err)
+		logger.Error.Println("Error openinng zmq.SUB socket", err)
 		os.Exit(1)
 	}
 
-	return &zmqSub{ctx, msgChan, doneChan, errChan, client}
+	return &zmqSub{ctx: ctx,
+		msgCh:  msgCh,
+		doneCh: doneCh,
+		errCh:  errCh,
+		client: client,
+	}
+}
+
+func (this *zmqSub) setTimeout(seconds int) {
+	this.timerCh = time.NewTimer(time.Duration(seconds) * time.Second).C
+
+	go func() {
+		for {
+			select {
+			case <-this.timerCh:
+				this.doneCh <- true
+			}
+		}
+	}()
 }
 
 func (this *zmqSub) processMessages() {
-	logger.Info.Println("Firing up zmqSub processMessages loop")
+	logger.Info.Println("Firing up zmqSub processMessages goroutine")
 	for {
 		select {
-		//We receive a message on the message channel
-		case msg := <-this.msgChan:
+
+		//We receive a message on the message channel, process it
+		case msg := <-this.msgCh:
 			logger.Info.Println("Processing Message: " + msg)
 			//TODO : Relay cached messages over to WebSocket client. Should be method call on websocketclient
 
-		//We have an error on the error channel
-		case err := <-this.errChan:
+		//We have an error on the error channel, log it and say we're done
+		case err := <-this.errCh:
 			logger.Error.Println("Error : ", err)
-			return
-		//We're done
-		case <-this.doneChan:
+			this.doneCh <- true
+
+		//We're done, clean up and say we're done
+		case <-this.doneCh:
 			logger.Info.Println("Done Processing Messages")
+			this.ctx.Term()
+			this.client.Close()
 			return
 		}
 	}
 }
 
 func (this *zmqSub) receiveMessages() {
-	logger.Info.Println("Firing up zmqSub receiveMessages loop")
+	logger.Info.Println("Firing up zmqSub receiveMessages goroutine")
 	for {
 		select {
-		//We have an error
-		case err := <-this.errChan:
-			logger.Error.Println("Error :", err)
-			this.errChan <- err // to notify processMessages()
-			return
 
-		//Read data from socket connection (loop)
 		default:
-			reply, err := this.client.Recv(0)
+			subMsg, err := this.client.Recv(0)
 
+			//If there's an error on receive, put it on the error channel and return
+			//from this function, the processMessages method will log it and say we're done
 			if err != nil {
-				this.errChan <- err
+				this.errCh <- err
 				return
 			}
-
-			this.msgChan <- reply //will be picked up by processMessages()
-
+			//put the reply on the channel
+			this.msgCh <- subMsg //will be picked up by processMessages()
 		}
 	}
 }
 
-func (this *zmqSub) Start() {
-	defer this.ctx.Term()
-
+func (this *zmqSub) Start(timeout int) {
 	logger.Info.Println("Starting ZMQ Sub ...")
+
+	if timeout > 0 {
+		logger.Info.Println("Setting Timeout to ", timeout, " seconds")
+		this.setTimeout(timeout)
+	}
 
 	this.client.Connect(PUB_URL)
 	this.client.SetSubscribe("")
-	defer this.client.Close()
 
 	go this.processMessages()
-	this.receiveMessages()
+	go this.receiveMessages()
+	//Wait until we get something on the done chan
+	<-this.doneCh
 }
-
-/*
-func PushZmqMessages(msgChan chan string, wsServer WebSocketServer) {
-	for msg := range msgChan {
-		log.Println("RECEIVED ON ZMQ SOCKET (from msgChan) : ", msg)
-		wsMsg := &Payload{"SoundTouch", msg}
-		wsServer.SendAll(wsMsg)
-	}
-}
-
-func BindToZmqTcpPort(msgChan chan string) {
-	port := config.ClientConf.EventCollectorPort
-
-	log.Println("Binding to Local ZMQ Port :", port)
-
-	checkError := func(err error) {
-		if err != nil {
-			log.SetFlags(0)
-			_, filename, lineno, ok := runtime.Caller(1)
-			if ok {
-				log.Fatalf("%v:%v: %v", filename, lineno, err)
-			} else {
-				log.Fatalln(err)
-			}
-		}
-	}
-
-	//Get keys from config file
-	localPrivateKey := config.ClientConf.LocalPrivateKey
-	remotePublicKey := config.ClientConf.RemotePublicKey
-
-	//Start authentication engine
-	zmq.AuthSetVerbose(true)
-	zmq.AuthStart()
-	zmq.AuthAllow("*")
-	zmq.AuthCurveAdd("*", remotePublicKey)
-
-	//Create and bind server socket
-	server, _ := zmq.NewSocket(zmq.PULL)
-	//Need the PUSH client's private key
-	server.ServerAuthCurve("*", localPrivateKey)
-	server.Bind("tcp://*:" + config.ClientConf.EventCollectorPort)
-
-	defer server.Close()
-	defer close(msgChan)
-
-	//When we receive messages on the TCP Socket,
-	//put it on the msgChan channel
-	for {
-		msg, err := server.Recv(0)
-		checkError(err)
-		msgChan <- msg
-	}
-	//Stop Auth engine
-	zmq.AuthStop()
-}
-*/

@@ -33,7 +33,6 @@ func init() {
 //TODO : Write actual/useful test
 func TestZmqSub(t *testing.T) {
 	zmqSub := NewZmqSub()
-	zmqSub.Start()
-
+	zmqSub.Start(2)
 	t.Error("Should Fail")
 }
