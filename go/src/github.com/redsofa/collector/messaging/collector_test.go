@@ -20,36 +20,19 @@ along with zmq-soundtouch.  If not, see <http://www.gnu.org/licenses/>.
 package messaging
 
 import (
-	"time"
+	"github.com/redsofa/logger"
+	"io/ioutil"
+	"os"
+	"testing"
 )
 
-type collector struct {
-	zmqDealer *dealer
-	zmqSub    *zmqSub
+func init() {
+	logger.InitLogger(ioutil.Discard, os.Stdout, os.Stdout, os.Stderr)
 }
 
-func NewCollector() *collector {
-	zmqDealer := NewDealer()
-	zmqSub := NewZmqSub()
-
-	return &collector{zmqDealer: zmqDealer, zmqSub: zmqSub}
-}
-
-func (this *collector) Start(timeout int) {
-
-	//The zmqDealer is the thing that get the last <x> messages
-	this.zmqDealer.Start()
-
-	time.Sleep(time.Second)
-
-	if timeout > 0 {
-		this.zmqSub.Start(timeout)
-	} else {
-		this.zmqSub.Start(0)
-	}
-
-	//Start up the websocket server
-	//server := NewWebSocketServer("/ws")
-	//go server.Listen()
-
+//TODO : Write actual/useful test
+func TestCollector(t *testing.T) {
+	collector := NewCollector()
+	collector.Start(2)
+	t.Error("Should Fail")
 }
