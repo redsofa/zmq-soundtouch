@@ -21,16 +21,11 @@ package messaging
 
 import (
 	zmq "github.com/pebbe/zmq4"
+	"github.com/redsofa/collector/config"
 	"github.com/redsofa/logger"
 	"os"
 	"time"
-	//"github.com/redsofa/collector/config"
 	//"runtime"
-)
-
-//TODO : Config
-const (
-	PUB_URL = "tcp://127.0.0.1:7001"
 )
 
 type zmqSub struct {
@@ -129,7 +124,7 @@ func (this *zmqSub) Start(timeout int) {
 		this.setTimeout(timeout)
 	}
 
-	this.client.Connect(PUB_URL)
+	this.client.Connect(config.ServerConfig.ZmqPubURL)
 	this.client.SetSubscribe("")
 
 	go this.processMessages()

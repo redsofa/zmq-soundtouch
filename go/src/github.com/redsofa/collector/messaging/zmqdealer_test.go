@@ -20,6 +20,7 @@ along with zmq-soundtouch.  If not, see <http://www.gnu.org/licenses/>.
 package messaging
 
 import (
+	"github.com/redsofa/collector/config"
 	"github.com/redsofa/logger"
 	"io/ioutil"
 	"os"
@@ -28,6 +29,13 @@ import (
 
 func init() {
 	logger.InitLogger(ioutil.Discard, os.Stdout, os.Stdout, os.Stderr)
+
+	err := config.ReadServiceConfig("../main/")
+	if err != nil {
+		logger.Error.Println(err)
+		os.Exit(1)
+	}
+
 }
 
 //TODO : Write actual/useful test

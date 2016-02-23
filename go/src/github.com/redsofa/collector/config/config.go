@@ -32,6 +32,10 @@ type Config struct {
 	EventCollectorPort string
 	LocalPrivateKey    string
 	RemotePublicKey    string
+	RouterUrl          string
+	CacheEndToken      string
+	CacheStartToken    string
+	ZmqPubURL          string
 }
 
 func ReadServiceConfig(directory string) error {

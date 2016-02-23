@@ -23,16 +23,10 @@ package messaging
 
 import (
 	zmq "github.com/pebbe/zmq4"
+	"github.com/redsofa/collector/config"
 	"github.com/redsofa/logger"
 	"os"
 	"strings"
-)
-
-//TODO: Config
-const (
-	ROUTER_URL        = "tcp://127.0.0.1:8000"
-	CACHE_END_TOKEN   = "KTHXBYE"
-	CACHE_START_TOKEN = "ICANHAZ?"
 )
 
 type dealer struct {
@@ -97,7 +91,7 @@ func (this *dealer) receiveMessages() {
 				this.errCh <- err
 				return
 			}
-			if strings.Compare(reply, CACHE_END_TOKEN) == 0 {
+			if strings.Compare(reply, config.ServerConfig.CacheEndToken) == 0 {
 				logger.Info.Println("Done reading cache")
 				this.doneCh <- true //to notify processMessages()
 			} else {
@@ -109,9 +103,9 @@ func (this *dealer) receiveMessages() {
 
 func (this *dealer) Start() {
 	logger.Info.Println("Starting Dealer ...")
-	this.client.Connect(ROUTER_URL)
+	this.client.Connect(config.ServerConfig.RouterUrl)
 	logger.Info.Println("Sending request for cache conntents")
-	this.client.Send(CACHE_START_TOKEN, 0)
+	this.client.Send(config.ServerConfig.CacheStartToken, 0)
 
 	go this.processMessages()
 	go this.receiveMessages()
