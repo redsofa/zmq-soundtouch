@@ -36,19 +36,19 @@ const (
 )
 
 type dealer struct {
-	ctx      *zmq.Context
-	msgChan  chan string
-	doneChan chan bool
-	errChan  chan error
-	client   *zmq.Socket
+	ctx    *zmq.Context
+	msgCh  chan string
+	doneCh chan bool
+	errCh  chan error
+	client *zmq.Socket
 }
 
 func NewDealer() *dealer {
 	ctx, _ := zmq.NewContext()
 
-	msgChan := make(chan string)
-	doneChan := make(chan bool)
-	errChan := make(chan error)
+	msgCh := make(chan string)
+	doneCh := make(chan bool)
+	errCh := make(chan error)
 
 	client, err := ctx.NewSocket(zmq.DEALER)
 
@@ -57,70 +57,65 @@ func NewDealer() *dealer {
 		os.Exit(1)
 	}
 
-	return &dealer{ctx, msgChan, doneChan, errChan, client}
+	return &dealer{ctx, msgCh, doneCh, errCh, client}
 }
 
 func (this *dealer) processMessages() {
-	logger.Info.Println("Firing up dealer processMessages loop")
+	logger.Info.Println("Firing up dealer processMessages goroutine")
 	for {
 		select {
 		//We receive a message on the message channel
-		case msg := <-this.msgChan:
+		case msg := <-this.msgCh:
 			logger.Info.Println("Processing Message: " + msg)
 			//TODO : Relay cached messages over to WebSocket client. Should be method call on websocketclient
 
-		//We have an error on the error channel
-		case err := <-this.errChan:
+		//We have an error on the error channel, log it and say we're done
+		case err := <-this.errCh:
 			logger.Error.Println("Error : ", err)
-			return
-		//We're done
-		case <-this.doneChan:
+			this.doneCh <- true
+
+		//We're done, clean up and say we're done
+		case <-this.doneCh:
 			logger.Info.Println("Done Processing Messages")
+			this.ctx.Term()
+			this.client.Close()
 			return
 		}
 	}
 }
 
 func (this *dealer) receiveMessages() {
-	logger.Info.Println("Firing up dealer receiveMessages loop")
+	logger.Info.Println("Firing up dealer receiveMessages goroutine")
 	for {
 		select {
-		//We have an error
-		case err := <-this.errChan:
-			logger.Error.Println("Error :", err)
-			this.errChan <- err // to notify processMessages()
-			return
 
 		//Read data from socket connection (loop)
 		default:
 			reply, err := this.client.Recv(0)
 
 			if err != nil {
-				this.errChan <- err
+				this.errCh <- err
 				return
 			}
 			if strings.Compare(reply, CACHE_END_TOKEN) == 0 {
 				logger.Info.Println("Done reading cache")
-				this.doneChan <- true //to notify processMessages()
-				return
+				this.doneCh <- true //to notify processMessages()
 			} else {
-				this.msgChan <- reply //will be picked up by processMessages()
+				this.msgCh <- reply //will be picked up by processMessages()
 			}
 		}
 	}
 }
 
 func (this *dealer) Start() {
-	defer this.ctx.Term()
-
 	logger.Info.Println("Starting Dealer ...")
-
 	this.client.Connect(ROUTER_URL)
-	defer this.client.Close()
-
 	logger.Info.Println("Sending request for cache conntents")
 	this.client.Send(CACHE_START_TOKEN, 0)
 
 	go this.processMessages()
-	this.receiveMessages()
+	go this.receiveMessages()
+
+	//Wait until we get something on the done channel
+	<-this.doneCh
 }
