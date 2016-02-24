@@ -24,8 +24,9 @@ import (
 )
 
 type collector struct {
-	zmqDealer *dealer
-	zmqSub    *zmqSub
+	zmqDealer       *dealer
+	zmqSub          *zmqSub
+	webSocketServer *webSocketServer
 }
 
 func NewCollector() *collector {
