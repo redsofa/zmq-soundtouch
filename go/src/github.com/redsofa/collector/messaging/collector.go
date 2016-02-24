@@ -24,39 +24,23 @@ import (
 )
 
 type collector struct {
-	zmqDealer       *dealer
-	zmqSub          *zmqSub
-	webSocketServer *webSocketServer
+	zmqDealer *dealer
+	zmqSub    *zmqSub
 }
 
 func NewCollector() *collector {
 	zmqDealer := NewDealer()
-	zmqSub := NewZmqSub()
 	webSocketServer := NewWebSocketServer("/socket")
-
-	return &collector{zmqDealer: zmqDealer, zmqSub: zmqSub, webSocketServer: webSocketServer}
+	zmqSub := NewZmqSub(webSocketServer)
+	return &collector{zmqDealer: zmqDealer, zmqSub: zmqSub}
 }
 
-func (this *collector) Start(timeout int) {
+func (this *collector) Start() {
 
 	//The zmqDealer is the thing that get the last <x> messages
-	this.zmqDealer.Start()
+	//	this.zmqDealer.Start()
 
 	time.Sleep(time.Second)
-
-	if timeout > 0 {
-		this.zmqSub.Start(timeout)
-	} else {
-		this.zmqSub.Start(0)
-	}
-
-	//Start up the websocket server
-
-	//server := NewWebSocketServer("/ws")
-	// if timeout > 0 {
-	// 	this.webSocketServer.Start(timeout)
-	// } else {
-	// 	this.webSocketServer.Start(0)
-	// }
+	this.zmqSub.Start(0)
 
 }

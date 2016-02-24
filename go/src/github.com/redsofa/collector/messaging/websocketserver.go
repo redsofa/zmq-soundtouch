@@ -70,6 +70,10 @@ func (this *webSocketServer) setTimeout(seconds int) {
 	}()
 }
 
+func (this *webSocketServer) Error(err error) {
+	this.errCh <- err
+}
+
 func (this *webSocketServer) AddWSClient(client *webSocketClient) {
 	this.addClCh <- client
 }
@@ -79,7 +83,18 @@ func (this *webSocketServer) RemoveWSClient(client *webSocketClient) {
 }
 
 func (this *webSocketServer) Broadcast(payload *Payload) {
+	logger.Info.Println("Broadcasting ...", payload)
 	this.sendAllCh <- payload
+}
+
+func (this *webSocketServer) sendAll(payload *Payload) {
+	for _, client := range this.wsClients {
+		client.Write(payload)
+	}
+}
+
+func (this *webSocketServer) Shutdown() {
+	this.doneCh <- true
 }
 
 func (this *webSocketServer) process() {
@@ -117,14 +132,13 @@ func (this *webSocketServer) process() {
 		// Send message to all WebSocket clients
 		case payload := <-this.sendAllCh:
 			logger.Info.Println("Sending all :", payload)
-			this.Broadcast(payload)
+			this.sendAll(payload)
 
 		case err := <-this.errCh:
 			logger.Error.Println("WebSocket Error : ", err)
-			this.doneCh <- true
 
 		case <-this.doneCh:
-			logger.Info.Println("WebSocket Server Done")
+			logger.Info.Println("WebSocket Server Shutdown")
 			return
 		}
 	}

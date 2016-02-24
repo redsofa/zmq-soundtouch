@@ -31,7 +31,7 @@ $( document ).ready(function($) {
    function connectWebSocket(){
       if ("WebSocket" in window){
          //var ws = new WebSocket("ws://soundtouch.redsofa.ca/entry");
-         var ws = new WebSocket("ws://localhost:8081/entry");
+         var ws = new WebSocket("ws://localhost:8081/socket");
             
          ws.onopen = function(){
             log("Opened Socket Connection", "orange");
@@ -41,6 +41,7 @@ $( document ).ready(function($) {
          ws.onmessage = function (evt){ 
             var received_msg = evt.data;
             jsonDoc = JSON.parse(received_msg);
+            console.log(jsonDoc)
             parseXml(jsonDoc)
          };
       

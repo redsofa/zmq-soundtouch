@@ -29,15 +29,16 @@ import (
 )
 
 type zmqSub struct {
-	ctx     *zmq.Context
-	msgCh   chan string
-	doneCh  chan bool
-	errCh   chan error
-	timerCh <-chan time.Time
-	client  *zmq.Socket
+	ctx      *zmq.Context
+	msgCh    chan string
+	doneCh   chan bool
+	errCh    chan error
+	timerCh  <-chan time.Time
+	client   *zmq.Socket
+	wsServer *webSocketServer
 }
 
-func NewZmqSub() *zmqSub {
+func NewZmqSub(wsServer *webSocketServer) *zmqSub {
 	ctx, _ := zmq.NewContext()
 
 	msgCh := make(chan string)
@@ -50,11 +51,19 @@ func NewZmqSub() *zmqSub {
 		os.Exit(1)
 	}
 
+	if wsServer == nil {
+		logger.Error.Println("webSocket server is nil in NewZmqSub")
+		os.Exit(1)
+	}
+
+	go wsServer.Start(0)
+
 	return &zmqSub{ctx: ctx,
-		msgCh:  msgCh,
-		doneCh: doneCh,
-		errCh:  errCh,
-		client: client,
+		msgCh:    msgCh,
+		doneCh:   doneCh,
+		errCh:    errCh,
+		client:   client,
+		wsServer: wsServer,
 	}
 }
 
@@ -79,11 +88,13 @@ func (this *zmqSub) processMessages() {
 		//We receive a message on the message channel, process it
 		case msg := <-this.msgCh:
 			logger.Info.Println("Processing Message: " + msg)
-			//TODO : Relay cached messages over to WebSocket client. Should be method call on websocketclient
+			wsPayload := &Payload{"SoundTouch", msg}
+			this.wsServer.Broadcast(wsPayload)
 
 		//We have an error on the error channel, log it and say we're done
 		case err := <-this.errCh:
 			logger.Error.Println("Error : ", err)
+			this.wsServer.Shutdown()
 			this.doneCh <- true
 
 		//We're done, clean up and say we're done
@@ -91,6 +102,7 @@ func (this *zmqSub) processMessages() {
 			logger.Info.Println("Done Processing Messages")
 			this.ctx.Term()
 			this.client.Close()
+			this.wsServer.Shutdown()
 			return
 		}
 	}

@@ -20,9 +20,9 @@ along with zmq-soundtouch.  If not, see <http://www.gnu.org/licenses/>.
 package main
 
 import (
-	"github.com/gorilla/mux"
 	"github.com/redsofa/collector/config"
 	"github.com/redsofa/collector/handlers"
+	"github.com/redsofa/collector/messaging"
 	"github.com/redsofa/collector/version"
 	"github.com/redsofa/logger"
 	"io/ioutil"
@@ -45,16 +45,11 @@ func main() {
 
 	logger.Info.Printf("Sever Starting - Listing on port %s - (Version - %s)", listenPort, version.APP_VERSION)
 
-	//TODO :
-	// Start up the websocket server
-	//server := messaging.NewServer("/ws")
-	//go server.Listen()
+	//Start up the collector server
+	collector := messaging.NewCollector()
+	go collector.Start()
 
-	//Setup router
-	router := mux.NewRouter()
-	//Our static content
-	router.PathPrefix("/").Handler(http.FileServer(http.Dir("./webroot")))
+	http.Handle("/", handlers.HttpLog(http.FileServer(http.Dir("webroot"))))
 
-	//Listen for connections and serve content
-	logger.Info.Println(http.ListenAndServe(":"+listenPort, handlers.HttpLog(router)))
+	logger.Info.Println(http.ListenAndServe(":"+listenPort, nil))
 }
