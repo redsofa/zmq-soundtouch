@@ -50,6 +50,6 @@ func (this *collector) Start(timeout int) {
 
 	//Start up the websocket server
 	//server := NewWebSocketServer("/ws")
-	//go server.Listen()
+	//server.Start()
 
 }
