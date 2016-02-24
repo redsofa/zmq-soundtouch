@@ -32,7 +32,8 @@ func init() {
 
 //TODO : Write actual/useful test
 func TestZmqSub(t *testing.T) {
+	logger.Info.Println("***************************************************")
 	zmqSub := NewZmqSub()
 	zmqSub.Start(2) //Start, but quit after 2 seconds
-	t.Error("Should Fail")
+	logger.Info.Println("***************************************************")
 }

@@ -35,13 +35,12 @@ func init() {
 		logger.Error.Println(err)
 		os.Exit(1)
 	}
-
 }
 
 //TODO : Write actual/useful test
-func TestDealer(t *testing.T) {
+func TestWebSocketServer(t *testing.T) {
 	logger.Info.Println("***************************************************")
-	dealer := NewDealer()
-	dealer.Start()
+	wsServer := NewWebSocketServer("/socket")
+	wsServer.Start(2) //Start, but quit after 2 seconds
 	logger.Info.Println("***************************************************")
 }

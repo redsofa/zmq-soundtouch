@@ -18,3 +18,20 @@ along with zmq-soundtouch.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 package messaging
+
+import (
+	"golang.org/x/net/websocket"
+)
+
+type webSocketClient struct {
+	id int
+}
+
+// Create new chat client.
+func NewWebSocketClient(ws *websocket.Conn, server *webSocketServer) *webSocketClient {
+	return nil
+}
+
+func (this *webSocketClient) Start() {
+
+}

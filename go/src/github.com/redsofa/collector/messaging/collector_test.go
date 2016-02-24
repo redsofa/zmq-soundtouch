@@ -32,7 +32,8 @@ func init() {
 
 //TODO : Write actual/useful test
 func TestCollector(t *testing.T) {
+	logger.Info.Println("***************************************************")
 	collector := NewCollector()
 	collector.Start(2)
-	t.Error("Should Fail")
+	logger.Info.Println("***************************************************")
 }
