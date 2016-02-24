@@ -31,8 +31,9 @@ type collector struct {
 func NewCollector() *collector {
 	zmqDealer := NewDealer()
 	zmqSub := NewZmqSub()
+	webSocketServer := NewWebSocketServer("/socket")
 
-	return &collector{zmqDealer: zmqDealer, zmqSub: zmqSub}
+	return &collector{zmqDealer: zmqDealer, zmqSub: zmqSub, webSocketServer: webSocketServer}
 }
 
 func (this *collector) Start(timeout int) {
@@ -49,7 +50,12 @@ func (this *collector) Start(timeout int) {
 	}
 
 	//Start up the websocket server
+
 	//server := NewWebSocketServer("/ws")
-	//server.Start()
+	// if timeout > 0 {
+	// 	this.webSocketServer.Start(timeout)
+	// } else {
+	// 	this.webSocketServer.Start(0)
+	// }
 
 }

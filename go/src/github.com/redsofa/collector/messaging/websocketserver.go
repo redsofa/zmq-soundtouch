@@ -20,7 +20,6 @@ along with zmq-soundtouch.  If not, see <http://www.gnu.org/licenses/>.
 package messaging
 
 import (
-	//	"github.com/redsofa/collector/config"
 	"github.com/redsofa/logger"
 	"golang.org/x/net/websocket"
 	"net/http"
