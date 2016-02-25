@@ -21,7 +21,7 @@ package config
 
 import (
 	"encoding/json"
-	"github.com/redsofa/collector/logger"
+	"github.com/redsofa/logger"
 	"os"
 )
 
@@ -32,6 +32,11 @@ type Config struct {
 	EventCollectorPort string
 	LocalPrivateKey    string
 	RemotePublicKey    string
+	RouterUrl          string
+	CacheEndToken      string
+	CacheStartToken    string
+	ZmqPubURL          string
+	SocketEndPoint     string
 }
 
 func ReadServiceConfig(directory string) error {

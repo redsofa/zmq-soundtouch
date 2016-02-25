@@ -1,7 +1,7 @@
 GOPATH := $(shell pwd)
 
 
-all: clean dist-dir build-collector build-soundtouch build-soundtouch-simulator
+all: dist-collector dist-soundtouch
 
 go-deps:
 	go get github.com/pebbe/zmq4
@@ -11,30 +11,38 @@ go-deps:
 dist-dir:
 	mkdir ./dist
 
-build-collector:
+godoc:
+	godoc -http=:6060
+	$ (cd src/github.com/redsofa/; godoc -http=:6060)
+
+run-collector:
+	@echo Running collector
+	@echo Using Go Path :
+	@echo $(GOPATH)
+	$ (cd src/github.com/redsofa/collector/main; go run main.go)	
+
+build-collector: clean dist-dir 
 	@echo Building collector
 	@echo Using Go Path :
 	@echo $(GOPATH)
 	mkdir ./dist/collector
-	go build -o ./dist/collector/server src/github.com/redsofa/collector/main/main.go
+	go build -o ./dist/collector/collector src/github.com/redsofa/collector/main/main.go
+
+dist-collector: build-collector
+	@echo Distributing collector
 	cp src/github.com/redsofa/collector/main/config.json ./dist/collector/config.json
 	cp -r src/github.com/redsofa/collector/main/webroot ./dist/collector/
 
-build-soundtouch:
+build-soundtouch: clean dist-dir
 	@echo Building soundtouch
 	@echo Using Go Path :
 	@echo $(GOPATH)
 	mkdir ./dist/soundtouch
 	go build -o ./dist/soundtouch/soundtouch src/github.com/redsofa/soundtouch/main/main.go
-	cp src/github.com/redsofa/soundtouch/main/config.json ./dist/soundtouch/config.json
 
-build-soundtouch-simulator:
-	@echo Building soundtouch-simulator
-	@echo Using Go Path :
-	@echo $(GOPATH)
-	mkdir ./dist/soundtouch-simulator
-	go build -o ./dist/soundtouch-simulator/simulator src/github.com/redsofa/soundtouch-simulator/main/main.go
-	cp src/github.com/redsofa/soundtouch-simulator/main/config.json ./dist/soundtouch-simulator/config.json
+dist-soundtouch: build-soundtouch
+	@echo Distributing soundtouch
+	cp src/github.com/redsofa/soundtouch/main/config.json ./dist/soundtouch/config.json
 
 clean:
 	@echo Cleaning ...
@@ -42,4 +50,4 @@ clean:
 
 test: 
 	@echo Testing ...
-	@echo Coming ... 
+	go test ./src/github.com/redsofa/collector/messaging/. -v

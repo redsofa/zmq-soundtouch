@@ -16,34 +16,9 @@ GNU Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License
 along with zmq-soundtouch.  If not, see <http://www.gnu.org/licenses/>.
 */
-package main
 
-import (
-	"github.com/redsofa/zmq-soundtouch/pull-zmq-event-collector-ws/config"
-	"github.com/redsofa/zmq-soundtouch/pull-zmq-event-collector-ws/messaging"
-	"log"
-	"net/http"
+package version
+
+const (
+	APP_VERSION = "0.0.2"
 )
-
-func main() {
-	zmqChan := make(chan string)
-
-	config.ReadConf("./")
-
-	port := config.ClientConf.WebServerPort
-
-	log.SetFlags(log.Lshortfile)
-
-	// websocket server
-	server := messaging.NewServer("/entry")
-	go server.Listen()
-
-	go messaging.BindToZmqTcpPort(zmqChan)
-	go messaging.PushZmqMessages(zmqChan, *server)
-
-	http.Handle("/", http.FileServer(http.Dir("webroot")))
-
-	log.Println("Web Sever Starting - Listing on port", port)
-
-	log.Fatal(http.ListenAndServe(":"+port, nil))
-}

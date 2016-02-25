@@ -16,36 +16,15 @@ GNU Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License
 along with zmq-soundtouch.  If not, see <http://www.gnu.org/licenses/>.
 */
-package config
 
-import (
-	"encoding/json"
-	"log"
-	"os"
-)
+package messaging
 
-var ClientConf Config
-
-type Config struct {
-	PushServerIP    string
-	PushServerPort  string
-	ClientSecretKey string
-	ServerPublicKey string
-	ClientPublicKey string
+type payload struct {
+	Source  string `json:"source"`
+	Message string `json:"message"`
 }
 
-func ReadConf(directory string) {
-	f, err := os.Open(directory + "config.json")
-	defer f.Close()
-
-	if err != nil {
-		log.Println(err)
-	}
-
-	decoder := json.NewDecoder(f)
-
-	err = decoder.Decode(&ClientConf)
-	if err != nil {
-		log.Println(err)
-	}
+//Stringer interface impl
+func (p *payload) String() string {
+	return p.Source + " - " + p.Message
 }

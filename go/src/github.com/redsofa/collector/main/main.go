@@ -16,19 +16,18 @@ GNU Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License
 along with zmq-soundtouch.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 package main
 
 import (
-	"github.com/gorilla/mux"
 	"github.com/redsofa/collector/config"
-	"github.com/redsofa/collector/logger"
+	"github.com/redsofa/collector/handlers"
+	"github.com/redsofa/collector/messaging"
+	"github.com/redsofa/collector/version"
+	"github.com/redsofa/logger"
 	"io/ioutil"
 	"net/http"
 	"os"
-)
-
-const (
-	SERVER_VERSION = "0.0.1"
 )
 
 func init() {
@@ -44,14 +43,14 @@ func main() {
 	//The port our server listens on
 	listenPort := config.ServerConfig.WebServerPort
 
-	logger.Info.Printf("Sever Starting - Listing on port %s - (Version - %s)", listenPort, SERVER_VERSION)
+	logger.Info.Printf("Sever Starting - Listing on port %s - (Version - %s)", listenPort, version.APP_VERSION)
 
-	router := mux.NewRouter()
-	//Our static content
-	router.PathPrefix("/").Handler(http.FileServer(http.Dir("./webroot")))
+	//Create and start up the collector gorouting
+	coll := messaging.NewCollector()
 
-	//Listen for connections and serve content
+	go coll.Start()
 
-	//TODO add logger middleware
-	logger.Info.Println(http.ListenAndServe(":"+listenPort, router))
+	http.Handle("/", handlers.HttpLog(http.FileServer(http.Dir("webroot"))))
+
+	logger.Info.Println(http.ListenAndServe(":"+listenPort, nil))
 }

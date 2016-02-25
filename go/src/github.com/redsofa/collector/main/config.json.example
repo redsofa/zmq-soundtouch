@@ -2,5 +2,10 @@
 	"WebServerPort" : "8081",
     "EventCollectorPort" : "8999",
     "LocalPrivateKey" : "<YOUR LOCAL PRIVATE KEY>",
-    "RemotePublicKey" : "<REMOTE BOX PUBLIC KEY>"
+    "RemotePublicKey" : "<REMOTE BOX PUBLIC KEY>",
+    "RouterUrl" 	  : "tcp://127.0.0.1:8000",
+	"CacheEndToken"   : "KTHXBYE",
+	"CacheStartToken" : "ICANHAZ?",
+	"ZmqPubURL"		  : "tcp://127.0.0.1:7001"  ,
+	"SocketEndPoint" : "/socket"
 }
