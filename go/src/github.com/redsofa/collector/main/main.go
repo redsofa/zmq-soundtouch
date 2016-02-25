@@ -45,9 +45,10 @@ func main() {
 
 	logger.Info.Printf("Sever Starting - Listing on port %s - (Version - %s)", listenPort, version.APP_VERSION)
 
-	//Start up the collector server
-	collector := messaging.NewCollector()
-	go collector.Start()
+	//Create and start up the collector gorouting
+	coll := messaging.NewCollector()
+
+	go coll.Start()
 
 	http.Handle("/", handlers.HttpLog(http.FileServer(http.Dir("webroot"))))
 

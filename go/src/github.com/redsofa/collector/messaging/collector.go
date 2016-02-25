@@ -20,27 +20,41 @@ along with zmq-soundtouch.  If not, see <http://www.gnu.org/licenses/>.
 package messaging
 
 import (
-	"time"
+	"github.com/redsofa/collector/config"
+	"github.com/redsofa/logger"
 )
 
 type collector struct {
-	zmqDealer *dealer
-	zmqSub    *zmqSub
+	socketManager *socketManager
+	queChan       chan string
+	zmqSub        *zmqSub
 }
 
 func NewCollector() *collector {
-	zmqDealer := NewDealer()
-	webSocketServer := NewWebSocketServer("/socket")
-	zmqSub := NewZmqSub(webSocketServer)
-	return &collector{zmqDealer: zmqDealer, zmqSub: zmqSub}
+	logger.Info.Println("Setting Up collector...")
+	logger.Info.Println("Using WebSocket EndPoint : ", config.ServerConfig.SocketEndPoint)
+	socketManager := newSocketManager(config.ServerConfig.SocketEndPoint)
+	msgQueuCh := make(chan string, 100)
+	return &collector{
+		socketManager: socketManager,
+		queChan:       msgQueuCh,
+		zmqSub:        newZmqSub(msgQueuCh),
+	}
 }
 
 func (this *collector) Start() {
+	//Start up the socket manager in a goroutine
+	go this.socketManager.start()
+	//start up the ZeroMQ TCP client - no timeout
+	go this.zmqSub.start(0)
 
-	//The zmqDealer is the thing that get the last <x> messages
-	//	this.zmqDealer.Start()
-
-	time.Sleep(time.Second)
-	this.zmqSub.Start(0)
-
+	//The queChan memeber variable is where messages
+	//coming from the zmqSub member variable are stuffed.
+	//Whenever there is a message available on this channel,
+	//queue it up on the socketManager.
+	//The socketManager will then broadcast the message
+	//to all WebSocket client connections
+	for m := range this.queChan {
+		this.socketManager.queueMessage(m)
+	}
 }

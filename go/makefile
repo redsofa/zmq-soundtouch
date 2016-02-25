@@ -1,7 +1,7 @@
 GOPATH := $(shell pwd)
 
 
-all: dist-collector dist-soundtouch dist-soundtouch-simulator
+all: dist-collector dist-soundtouch
 
 go-deps:
 	go get github.com/pebbe/zmq4
@@ -43,18 +43,6 @@ build-soundtouch: clean dist-dir
 dist-soundtouch: build-soundtouch
 	@echo Distributing soundtouch
 	cp src/github.com/redsofa/soundtouch/main/config.json ./dist/soundtouch/config.json
-
-
-build-soundtouch-simulator: clean dist-dir
-	@echo Building soundtouch-simulator
-	@echo Using Go Path :
-	@echo $(GOPATH)
-	mkdir ./dist/soundtouch-simulator
-	go build -o ./dist/soundtouch-simulator/soundtouch-simulator src/github.com/redsofa/soundtouch-simulator/main/main.go
-
-dist-soundtouch-simulator: build-soundtouch-simulator
-	@echo Distributing soundtouch-simulator
-	cp src/github.com/redsofa/soundtouch-simulator/main/config.json ./dist/soundtouch-simulator/config.json
 
 clean:
 	@echo Cleaning ...

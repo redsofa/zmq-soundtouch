@@ -25,7 +25,6 @@ import (
 	"github.com/redsofa/logger"
 	"os"
 	"time"
-	//"runtime"
 )
 
 type zmqSub struct {
@@ -35,10 +34,10 @@ type zmqSub struct {
 	errCh    chan error
 	timerCh  <-chan time.Time
 	client   *zmq.Socket
-	wsServer *webSocketServer
+	queuChan chan string
 }
 
-func NewZmqSub(wsServer *webSocketServer) *zmqSub {
+func newZmqSub(queuChan chan string) *zmqSub {
 	ctx, _ := zmq.NewContext()
 
 	msgCh := make(chan string)
@@ -51,19 +50,17 @@ func NewZmqSub(wsServer *webSocketServer) *zmqSub {
 		os.Exit(1)
 	}
 
-	if wsServer == nil {
-		logger.Error.Println("webSocket server is nil in NewZmqSub")
+	if queuChan == nil {
+		logger.Error.Println("queuChan cannot be nil in the zmqSub struct", err)
 		os.Exit(1)
 	}
-
-	go wsServer.Start(0)
 
 	return &zmqSub{ctx: ctx,
 		msgCh:    msgCh,
 		doneCh:   doneCh,
 		errCh:    errCh,
 		client:   client,
-		wsServer: wsServer,
+		queuChan: queuChan,
 	}
 }
 
@@ -88,13 +85,11 @@ func (this *zmqSub) processMessages() {
 		//We receive a message on the message channel, process it
 		case msg := <-this.msgCh:
 			logger.Info.Println("Processing Message: " + msg)
-			wsPayload := &Payload{"SoundTouch", msg}
-			this.wsServer.Broadcast(wsPayload)
+			this.queuChan <- msg
 
 		//We have an error on the error channel, log it and say we're done
 		case err := <-this.errCh:
 			logger.Error.Println("Error : ", err)
-			this.wsServer.Shutdown()
 			this.doneCh <- true
 
 		//We're done, clean up and say we're done
@@ -102,7 +97,6 @@ func (this *zmqSub) processMessages() {
 			logger.Info.Println("Done Processing Messages")
 			this.ctx.Term()
 			this.client.Close()
-			this.wsServer.Shutdown()
 			return
 		}
 	}
@@ -128,7 +122,7 @@ func (this *zmqSub) receiveMessages() {
 	}
 }
 
-func (this *zmqSub) Start(timeout int) {
+func (this *zmqSub) start(timeout int) {
 	logger.Info.Println("Starting ZMQ Sub ...")
 
 	if timeout > 0 {

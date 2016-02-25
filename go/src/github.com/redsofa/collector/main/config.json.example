@@ -6,5 +6,6 @@
     "RouterUrl" 	  : "tcp://127.0.0.1:8000",
 	"CacheEndToken"   : "KTHXBYE",
 	"CacheStartToken" : "ICANHAZ?",
-	"ZmqPubURL"		  : "tcp://127.0.0.1:7001"    
+	"ZmqPubURL"		  : "tcp://127.0.0.1:7001"  ,
+	"SocketEndPoint" : "/socket"
 }

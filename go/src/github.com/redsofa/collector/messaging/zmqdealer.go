@@ -17,8 +17,6 @@ You should have received a copy of the GNU Affero General Public License
 along with zmq-soundtouch.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-//TODO: Might want to return payload slice and have timeout option
-
 package messaging
 
 import (
@@ -35,9 +33,10 @@ type dealer struct {
 	doneCh chan bool
 	errCh  chan error
 	client *zmq.Socket
+	cache  []string
 }
 
-func NewDealer() *dealer {
+func newDealer() *dealer {
 	ctx, _ := zmq.NewContext()
 
 	msgCh := make(chan string)
@@ -51,7 +50,13 @@ func NewDealer() *dealer {
 		os.Exit(1)
 	}
 
-	return &dealer{ctx, msgCh, doneCh, errCh, client}
+	return &dealer{
+		ctx:    ctx,
+		msgCh:  msgCh,
+		doneCh: doneCh,
+		errCh:  errCh,
+		client: client,
+	}
 }
 
 func (this *dealer) processMessages() {
@@ -61,7 +66,7 @@ func (this *dealer) processMessages() {
 		//We receive a message on the message channel
 		case msg := <-this.msgCh:
 			logger.Info.Println("Processing Message: " + msg)
-			//TODO : Relay cached messages over to WebSocket client. Should be method call on websocketclient
+			this.cache = append(this.cache, msg)
 
 		//We have an error on the error channel, log it and say we're done
 		case err := <-this.errCh:
@@ -101,7 +106,7 @@ func (this *dealer) receiveMessages() {
 	}
 }
 
-func (this *dealer) Start() {
+func (this *dealer) start() []string {
 	logger.Info.Println("Starting Dealer ...")
 	this.client.Connect(config.ServerConfig.RouterUrl)
 	logger.Info.Println("Sending request for cache conntents")
@@ -112,4 +117,5 @@ func (this *dealer) Start() {
 
 	//Wait until we get something on the done channel
 	<-this.doneCh
+	return this.cache
 }

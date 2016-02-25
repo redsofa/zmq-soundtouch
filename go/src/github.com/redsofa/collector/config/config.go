@@ -36,6 +36,7 @@ type Config struct {
 	CacheEndToken      string
 	CacheStartToken    string
 	ZmqPubURL          string
+	SocketEndPoint     string
 }
 
 func ReadServiceConfig(directory string) error {

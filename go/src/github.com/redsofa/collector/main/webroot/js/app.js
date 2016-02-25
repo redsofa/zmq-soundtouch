@@ -41,7 +41,6 @@ $( document ).ready(function($) {
          ws.onmessage = function (evt){ 
             var received_msg = evt.data;
             jsonDoc = JSON.parse(received_msg);
-            console.log(jsonDoc)
             parseXml(jsonDoc)
          };
       
