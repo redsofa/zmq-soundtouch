@@ -17,6 +17,19 @@ Main Project List :
 
 4) - ./go/src/github.com/redsofa/`collector` - Project that connects to ZeroMQ TCP PUB socket, receives notification messages and passes them on to WebSocket clients. Project also connects to ZeroMQ Router socket to get a list of most recent messages. In addition, it serves static web content.
 
+Install
+-------
+Project contains a Vagrantfile with centos7. Before proceeding install Vagrant on your local machine: https://www.vagrantup.com/downloads.html
+
+You will now create a virtual machine and us it develop and run the code. To install all the dependencies and get the machine ready, do this:
+
+1. `git clone git@github.com:redsofa/zmq-soundtouch.git`
+2. Navigate to root directory of the project: `cd zmq-soundtouch`.
+3. Create a vagrant vm: `vagrant up`
+4. Ssh into vm: `vagrant ssh`.
+
+You can find the `src` directory shared in the vagrant vm under the `/usr/local/src` path. You can find the root directory itself shared under `/vagrant'.
+
 
 Project Topology :
 -------------------
