@@ -1,0 +1,54 @@
+---
+- hosts: 127.0.0.1 
+  connection: local
+  sudo: true
+  tasks:
+
+  - name: vim
+    yum: name=vim state=latest
+
+  #########################################
+  # zeromq                                #
+  #########################################
+  # setup zeromq and all the crap needed
+  # for installing pyzmq later
+  - name: zeromq dependencies
+    yum: name={{item}} state=latest
+    with_items:
+      - zeromq
+      - git
+      - svn
+      - cpp
+      - make
+      - autoconf
+      - automake
+      - patch
+      - cmake
+      - wget
+      - mlocate
+      - rpm-build
+      - gcc-c++
+      - uuid-devel
+      - pkgconfig 
+      - libtool
+      - python-devel
+      - openpgm
+
+    
+  #########################################
+  # Python - install and configure stuff  #
+  #          needed for running python    #
+  #          projects                     #
+  #########################################
+
+  # # Python 2.7 is already installed in centos7, but pip is not:
+  - easy_install: name=pip
+  # # now setup all our required python dependencies:
+  - pip: requirements=/usr/local/src/python/requirements.txt
+
+  #######################################
+  # Golang - install and configure go   #
+  #          stuff need for running go  #
+  #          projects                   #
+  #######################################
+  
