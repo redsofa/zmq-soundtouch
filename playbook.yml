@@ -68,7 +68,7 @@
     command : wget -P ./scratch https://github.com/jedisct1/libsodium/releases/download/1.0.8/libsodium-1.0.8.tar.gz
 
   - name : Un-tar libsodium 
-    command : tar -C ./scratch -xzf tar -C ./scratch/libsodium-1.0.8.tar.gz
+    command : tar -C ./scratch -xzf ./scratch/libsodium-1.0.8.tar.gz
 
   - name : Configure libsodium
     command : ./configure
@@ -165,8 +165,9 @@
 # make go-deps
 # make
 
+# vagrant destroy
 # Delete the scratch directory...
-
-#vagrant ssh
-#/vagrant
-#ansible-playbook playbook.yml
+# vagrant up
+# vagrant ssh
+# /vagrant
+# ansible-playbook playbook.yml
