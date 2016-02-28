@@ -4,6 +4,8 @@ GOPATH := $(shell pwd)
 all: dist-collector dist-soundtouch
 
 go-deps:
+	@echo Using Go Path :
+	@echo $(GOPATH)	
 	go get github.com/pebbe/zmq4
 	go get golang.org/x/net/websocket
 	go get github.com/gorilla/mux

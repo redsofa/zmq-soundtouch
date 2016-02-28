@@ -34,14 +34,14 @@
       - python-devel
       - openpgm
 
-    
+
   #########################################
   # Python - install and configure stuff  #
   #          needed for running python    #
   #          projects                     #
   #########################################
 
-  # # Python 2.7 is already installed in centos7, but pip is not:
+  # Python 2.7 is already installed in centos7, but pip is not:
   - easy_install: name=pip
   # # now setup all our required python dependencies:
   - pip: requirements=/usr/local/src/python/requirements.txt
@@ -51,4 +51,122 @@
   #          stuff need for running go  #
   #          projects                   #
   #######################################
-  
+
+  - name : Make scratch dir
+    command : mkdir ./scratch
+
+  - name: Go download
+    command: wget -P ./scratch https://storage.googleapis.com/golang/go1.6.linux-amd64.tar.gz
+
+  - name: Go installation
+    command: tar -C /usr/local -xzf ./scratch/go1.6.linux-amd64.tar.gz
+
+  - name: Add Go bin dir to path
+    lineinfile: dest=/etc/profile line="export PATH=$PATH:/usr/local/go/bin"
+
+  - name : Download libsodium
+    command : wget -P ./scratch https://github.com/jedisct1/libsodium/releases/download/1.0.8/libsodium-1.0.8.tar.gz
+
+  - name : Un-tar libsodium 
+    command : tar -C ./scratch -xzf tar -C ./scratch/libsodium-1.0.8.tar.gz
+
+  - name : Configure libsodium
+    command : ./configure
+    args:
+      chdir: ./scratch/libsodium-1.0.8/
+
+  - name : Make libsodium
+    command : ./make
+    args:
+      chdir: ./scratch/libsodium-1.0.8/
+
+  - name : Make check libsodium
+    command : make check
+    args:
+      chdir: ./scratch/libsodium-1.0.8/
+
+  - name : Make install libsodium
+    command : make install
+    args:
+      chdir: ./scratch/libsodium-1.0.8/
+
+  - name: Download zmqlib
+    command: wget -P ./scratch http://download.zeromq.org/zeromq-4.1.4.tar.gz
+
+  - name: Un-tar zmqlib
+    command: tar -C ./scratch -xzf ./scratch/zeromq-4.1.4.tar.gz
+
+  - name : Autogen zmqlib
+    command : ./autogen.sh
+    args:
+      chdir: ./scratch/zeromq-4.1.4/
+
+  - name: Add /usr/local/lib $LD_LIBRARY_PATH in /etc/profile
+    lineinfile: dest=/etc/profile line="export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib"
+
+  - name: Apply LD_LIBRARY_PATH changes
+    shell: . /etc/profile
+
+  # The following section creates a buildzmqlib.sh script 
+  # There may be a better way to create the script {with_items} but this will do for now
+  # The script sets environment variables needed to build the zmqlib
+  - name : Create buildzmqlib.sh script
+    shell: touch buildzmqlib.sh
+    args:
+      chdir: ./scratch/zeromq-4.1.4/
+
+  - name: Make buildzmqlib.sh script
+    lineinfile: dest=./scratch/zeromq-4.1.4/buildzmqlib.sh line='export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/usr/local/lib"'
+
+  - name: Make buildzmqlib.sh script (cont)
+    lineinfile: dest=./scratch/zeromq-4.1.4/buildzmqlib.sh line='export sodium_LIBS="-L/usr/local/lib"'
+
+  - name: Make buildzmqlib.sh script (cont)
+    lineinfile: dest=./scratch/zeromq-4.1.4/buildzmqlib.sh line='export CPATH=/usr/local/include'
+
+  - name: Make buildzmqlib.sh script (cont)
+    lineinfile: dest=./scratch/zeromq-4.1.4/buildzmqlib.sh line='export LIBRARY_PATH=/usr/local/lib'
+
+  - name: Make buildzmqlib.sh script (cont)
+    lineinfile: dest=./scratch/zeromq-4.1.4/buildzmqlib.sh line='export LD_LIBRARY_PATH=/usr/local/lib'
+
+  - name: Make buildzmqlib.sh script (cont)
+    lineinfile: dest=./scratch/zeromq-4.1.4/buildzmqlib.sh line='export LD_RUN_PATH=/usr/local/lib'
+
+  - name: Make buildzmqlib.sh script (cont)
+    lineinfile: dest=./scratch/zeromq-4.1.4/buildzmqlib.sh line='export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig'
+
+  - name: Make buildzmqlib.sh script (cont)
+    lineinfile: dest=./scratch/zeromq-4.1.4/buildzmqlib.sh line='export CFLAGS=$(pkg-config --cflags libsodium)'
+
+  - name: Make buildzmqlib.sh script (cont)
+    lineinfile: dest=./scratch/zeromq-4.1.4/buildzmqlib.sh line='export LDFLAGS=$(pkg-config --libs libsodium)'
+
+  - name: Make buildzmqlib.sh script (cont)
+    lineinfile: dest=./scratch/zeromq-4.1.4/buildzmqlib.sh line='./configure --with-libsodium'
+
+  - name: Make buildzmqlib.sh script (cont)
+    lineinfile: dest=./scratch/zeromq-4.1.4/buildzmqlib.sh line='make clean'    
+
+  - name: Make buildzmqlib.sh script (cont)
+    lineinfile: dest=./scratch/zeromq-4.1.4/buildzmqlib.sh line='make'
+
+  - name: Make buildzmqlib.sh script (cont)
+    lineinfile: dest=./scratch/zeromq-4.1.4/buildzmqlib.sh line='make install'
+
+  - name: Run build zmqlib 
+    command: sh buildzmqlib.sh 
+    args:
+      chdir: ./scratch/zeromq-4.1.4/
+
+
+
+
+# make go-deps
+# make
+
+# Delete the scratch directory...
+
+#vagrant ssh
+#/vagrant
+#ansible-playbook playbook.yml
