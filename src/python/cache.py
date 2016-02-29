@@ -25,68 +25,127 @@ import sys
 import argparse
 import zmq
 import collections 
+
 def run(sub_address, router_address, n):
     """
     @param n: How many last values to cache.
     """
-    assert(n > 0)
+    context = create_context()
+    sub = connect_sub_socket(context, sub_address)
+    router = bind_router_socket(context, router_address)
+    poller = create_poller([sub, router])
 
-    ctx = zmq.Context.instance()
-    sub = ctx.socket(zmq.SUB)
-    sub.setsockopt(zmq.SUBSCRIBE, "")
-    logging.debug("Connecting SUB socket to %s" % sub_address)
-    sub.connect(sub_address)
+    cache = create_cache(n)
+    loop(poller, sub, router, cache)
 
-    router = ctx.socket(zmq.ROUTER)
-    logging.debug("Binding ROUTER socket to %s" % router_address)
-    router.bind(router_address)
+def create_context():
+    return zmq.Context.instance()
 
-    # store last N values (newest items in the front, or first)
-    cache = collections.deque([], n)
+def connect_sub_socket(context, address):
+    socket = context.socket(zmq.SUB)
+    socket.setsockopt(zmq.SUBSCRIBE, "")
+    logging.debug("Connecting SUB socket to %s" % address)
+    socket.connect(address)
+    return socket
 
+def bind_router_socket(context, address):
+    socket = context.socket(zmq.ROUTER)
+    logging.debug("Binding ROUTER socket to %s" % address)
+    socket.bind(address)
+    return socket
+
+def create_poller(sockets):
     poller = zmq.Poller()
-    poller.register(sub, zmq.POLLIN)
-    poller.register(router, zmq.POLLIN)
+    for socket in sockets:
+        poller.register(socket, zmq.POLLIN)
+    return poller
 
+def create_cache(n):
+    # store last N values (newest items in the front, or first)
+    assert(n > 0)
+    return collections.deque([], n)
+
+def loop(poller, sub, router, cache):
     while True:
-        try:
-            events = dict(poller.poll(1000))
-        except KeyboardInterrupt:
-            print("Interrupted")
-            break
+        poll(sub, router, poller, cache)
 
-        # If new data we cache
-        if sub in events:
-            msg = sub.recv()
-            logging.debug("Received '%s'" % msg)
-            cache.appendleft(msg)
+def poll(sub, router, poller, cache):
+    events = poll_with_interrupt(poller)
 
-        # If request - forward cached items
-        if router in events:
-            logging.debug("Request received.")
-            ident, msg = router.recv_multipart()
-            if msg != "ICANHAZ?":
-                logging.warn("Invalid request: '%s'." % msg)
-                break
+    if check_for_sub(sub, events):
+        handle_sub(sub, events, cache)
 
-            for item in cache:
-                router.send_multipart([ident, item])
+    if check_for_router(router, events):
+        handle_router(router, events, cache)
+                
+def poll_with_interrupt(poller):
+    try:
+        return dict(poller.poll(1000))
+    except KeyboardInterrupt:
+        print("Interrupted")
+        sys.exit(-1)
 
-            logging.info("Sending bye.")
-            router.send_multipart([ident,'KTHXBYE'])
+def handle_sub(sub, events, cache):
+    msg = sub.recv()
+    logging.debug("Received '%s'" % msg)
+    cache.appendleft(msg)
 
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Cache server.')
+def check_for_sub(sub, events):
+    return sub in events
+
+def check_for_router(router, events):
+    return router in events
+
+def handle_router(router, events, cache):
+    # Forward cached items
+    logging.debug("Request received.")
+    ident, msg = router.recv_multipart()
+
+    if not icanhaz(msg):
+        logging.warn("Invalid request: '%s'." % msg)
+        sys.exit(-1)
+    else:
+        send_cached_items(ident, cache, router)
+
+def send_cache(ident, cache, router):
+    for item in cache:
+        router.send_multipart([ident, item])
+
+def send_bye(ident, router):
+    router.send_multipart([ident,'KTHXBYE'])
+
+def icanhaz(msg):
+    return msg == "ICANHAZ?"
+
+def send_cached_items(ident, cache, router):
+    send_cache(ident, cache, router)
+    send_bye(ident, router)
+
+def populate_parser_args(parser):
     parser.add_argument('--sub-address', dest='sub_address', help='Address to subscribe to (tcp://127.0.0.1:7001 by default)', default="tcp://127.0.0.1:7001")
     parser.add_argument('--router-address', dest='router_address', help='Address to handle REQ requests on (tcp://127.0.0.1:8000 by default)', default="tcp://127.0.01:8000")
     parser.add_argument('-n', dest='n', help='Number of items to cache (must be greater than zero). Defaults to 10', default=10)
     parser.add_argument('-v', dest='verbose', help='Verbose mode', action="store_const", const=True)
-    args = parser.parse_args()
     
-    if args.verbose:
-        level = logging.DEBUG
-    else:
-        level = logging.INFO
+def user_args():
+    parser = argparse.ArgumentParser(description='Cache server.')
+    populate_parser_args(parser)
+    args = parser.parse_args()
+    return (args.verbose, args.sub_address, args.router_address, args.n)
 
+def log_level(verbose):
+    if verbose:
+        return logging.DEBUG
+    else:
+        return logging.INFO
+
+def configure_logging(verbose):
+    level = log_level(verbose)
     logging.basicConfig(level=level, format="[%(levelname)s] %(message)s")
-    run(args.sub_address, args.router_address, args.n)
+
+if __name__ == '__main__':
+    (verbose, sub_address, router_address, n) = user_args()
+    
+    configure_logging(verbose)
+
+    run(sub_address, router_address, n)

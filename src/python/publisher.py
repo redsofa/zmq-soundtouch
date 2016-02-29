@@ -25,47 +25,74 @@ import argparse
 import zmq
 import os
 from helpers import insecure_client, secure_client
-
+from contextlib import contextmanager
 
 def run(pull_address, pub_address, insecure):
-    ctx = zmq.Context.instance()
+    pub_socket = bind_pub_socket(pub_address)
 
-    pub = ctx.socket(zmq.PUB)
-    logging.debug("PUB bound to %s" % pub_address)
-    pub.bind(pub_address)
-
-    if insecure:
-        logging.warn("Creating insecure PULL socket.")
-        client = insecure_client
-    else:
-        logging.debug("Creating secure PULL socket.")
-        client = secure_client
-
-    with client(zmq.PULL) as pull:
+    with connect_pull_socket(pull_address, insecure) as pull_socket:
         logging.debug("PULL connected to %s" % pull_address)
-        pull.connect(pull_address)
+        forward(pull_socket, pub_socket)
 
-        while(True):
-            message = pull.recv()
-            logging.debug("Message received: %s" % message)
-            pub.send(message)
+def bind_pub_socket(address):
+    ctx = zmq.Context.instance()
+    socket = ctx.socket(zmq.PUB)
+    socket.bind(address)
+    logging.debug("PUB bound to %s" % address)
+    return socket
 
+@contextmanager
+def connect_pull_socket(address, insecure):
+    client_creator = choose_client_creator(insecure)
+    with client_creator(zmq.PULL) as socket:
+        socket.connect(address)
+        yield socket
 
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Listens to a PULL socket and publishes to a PUB socket.')
+def choose_client_creator(insecure):
+    if insecure:
+        logging.warn("Using insecure PULL socket.")
+        return insecure_client
+    else:
+        logging.debug("Using secure PULL socket.")
+        return secure_client
+
+def forward(in_socket, out_socket):
+    while(True):
+        message = in_socket.recv()
+        logging.debug("Message received: %s" % message)
+        out_socket.send(message)
+
+def ensure_security_supported():
+    if zmq.zmq_version_info() < (4,0):
+        raise RuntimeError("Security is not supported in libzmq version < 4.0. libzmq version {0}".format(zmq.zmq_version()))
+
+def log_level(verbose):
+    if verbose:
+        return logging.DEBUG
+    else:
+        return logging.INFO
+
+def configure_logging(verbose):
+    level = log_level(verbose)
+    logging.basicConfig(level=level, format="[%(levelname)s] %(message)s")
+
+def populate_parser_args(parser):
     parser.add_argument('--pull', dest='pull', help='Host to listen on (localhost, port 7000 by default)', default="tcp://127.0.0.1:7000")
     parser.add_argument('--pub', dest='pub', help='Address to publish on (localhost, port 7001 by default)', default="tcp://127.0.0.1:7001")
     parser.add_argument('--insecure', dest='insecure', help='Run without security (useful for testing)', action='store_const', const=True, default=False)
     parser.add_argument('-v', dest='verbose', help='Verbose mode', action="store_const", const=True)
+
+def user_args():
+    parser = argparse.ArgumentParser(description='Listens to a PULL socket and publishes to a PUB socket.')
+    populate_parser_args(parser)
     args = parser.parse_args()
+    return (args.verbose, args.pull, args.pub, args.insecure)
+
+if __name__ == '__main__':
+    (verbose, pull, pub, insecure) = user_args()
     
-    if zmq.zmq_version_info() < (4,0):
-        raise RuntimeError("Security is not supported in libzmq version < 4.0. libzmq version {0}".format(zmq.zmq_version()))
+    ensure_security_supported()
 
-    if args.verbose:
-        level = logging.DEBUG
-    else:
-        level = logging.INFO
+    configure_logging(verbose)
 
-    logging.basicConfig(level=level, format="[%(levelname)s] %(message)s")
-    run(args.pull, args.pub, args.insecure)
+    run(pull, pub, insecure)
