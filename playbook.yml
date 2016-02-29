@@ -52,6 +52,15 @@
   #          projects                   #
   #######################################
 
+  # For reference purposes ...
+  # Some useful commands (used while building ansible script)...
+  #
+  # vagrant destroy
+  # vagrant up
+  # vagrant ssh
+  # cd /vagrant
+  # ansible-playbook playbook.yml
+
   - name : Make scratch dir
     command : mkdir ./scratch
 
@@ -76,7 +85,7 @@
       chdir: ./scratch/libsodium-1.0.8/
 
   - name : Make libsodium
-    command : ./make
+    command : make
     args:
       chdir: ./scratch/libsodium-1.0.8/
 
@@ -160,14 +169,37 @@
       chdir: ./scratch/zeromq-4.1.4/
 
 
+  # Build Go project artifacts
+  - name : Create build-go-artifacts.sh script
+    shell: touch build-go-artifacts.sh
+    args:
+      chdir: ./scratch/
 
+  - name: Create build-go-artifacts.sh script (cont)
+    lineinfile: dest=./scratch/build-go-artifacts.sh line='export PATH=$PATH:/usr/local/go/bin'
 
-# make go-deps
-# make
+  - name: Create build-go-artifacts.sh script (cont)
+    lineinfile: dest=./scratch/build-go-artifacts.sh line='export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig'
 
-# vagrant destroy
-# Delete the scratch directory...
-# vagrant up
-# vagrant ssh
-# /vagrant
-# ansible-playbook playbook.yml
+  - name: Create build-go-artifacts.sh script (cont)
+    lineinfile: dest=./scratch/build-go-artifacts.sh line='export GOPATH=/vagrant/src/go'
+
+  - name: Create build-go-artifacts.sh script (cont)
+    lineinfile: dest=./scratch/build-go-artifacts.sh line='cd /vagrant/src/go && make go-deps'
+
+  - name: Create build-go-artifacts.sh script (cont)
+    lineinfile: dest=./scratch/build-go-artifacts.sh line='cd /vagrant/src/go && make'
+
+  - name: Create build-go-artifacts.sh script (cont)
+    lineinfile: dest=./scratch/build-go-artifacts.sh line='touch /vagrant/src/go/src/github.com/redsofa/collector/main/config.json'
+
+  - name: Create build-go-artifacts.sh script (cont)
+    lineinfile: dest=./scratch/build-go-artifacts.sh line='touch /vagrant/src/go/src/github.com/redsofa/soundtouch/main/config.json'
+
+  - name: Run build-go-artifacts.sh
+    command: sh build-go-artifacts.sh
+    args:
+      chdir: ./scratch/
+
+  - name : Delete scratch directory 
+    file: path=./scratch state=absent
