@@ -30,8 +30,6 @@ var ServerConfig Config
 type Config struct {
 	WebServerPort      string
 	EventCollectorPort string
-	LocalPrivateKey    string
-	RemotePublicKey    string
 	RouterUrl          string
 	CacheEndToken      string
 	CacheStartToken    string

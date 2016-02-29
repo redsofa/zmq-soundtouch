@@ -6,6 +6,11 @@ A series of projects exploring secure ZeroMQ connections and SoundTouch event da
 ![Screencast](./docs/demo.gif "Screencast")
 
 
+Live Site :
+-----------
+See it in action here : <a href="http://soundtouch.redsofa.ca" target="_blank">soundtouch.redsofa.ca</a>. If you're on IE, sorry. Try Chrome, FireFox, Safari etc.. 
+
+
 Main Project List : 
 -------------------
 
@@ -31,6 +36,7 @@ You will now create a virtual machine and us it develop and run the code. To ins
 You can find the `src` directory shared in the vagrant vm under the `/usr/local/src` path. You can find the root directory itself shared under `/vagrant'.
 
 
+
 Project Topology :
 -------------------
 ![Topology](./docs/topology.png "Topology")
@@ -38,5 +44,4 @@ Project Topology :
 
 License
 -------
-
 This project is licensed under AGPL V3. See COPYING file for a copy of the included license or visit http://www.gnu.org/licenses/.

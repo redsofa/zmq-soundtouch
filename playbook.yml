@@ -61,17 +61,25 @@
   # cd /vagrant
   # ansible-playbook playbook.yml
 
+  # The ./scratch directory is a working directory that gets deleted at the end of the 
+  # playbook
+
   - name : Make scratch dir
     command : mkdir ./scratch
+
+  # Install Go
 
   - name: Go download
     command: wget -P ./scratch https://storage.googleapis.com/golang/go1.6.linux-amd64.tar.gz
 
-  - name: Go installation
+  - name: Go Install Go
     command: tar -C /usr/local -xzf ./scratch/go1.6.linux-amd64.tar.gz
 
   - name: Add Go bin dir to path
     lineinfile: dest=/etc/profile line="export PATH=$PATH:/usr/local/go/bin"
+
+
+  # Install libsodium library (curve dependency)
 
   - name : Download libsodium
     command : wget -P ./scratch https://github.com/jedisct1/libsodium/releases/download/1.0.8/libsodium-1.0.8.tar.gz
@@ -99,6 +107,9 @@
     args:
       chdir: ./scratch/libsodium-1.0.8/
 
+
+  # zmqlib installation (with libsodium)
+
   - name: Download zmqlib
     command: wget -P ./scratch http://download.zeromq.org/zeromq-4.1.4.tar.gz
 
@@ -109,12 +120,6 @@
     command : ./autogen.sh
     args:
       chdir: ./scratch/zeromq-4.1.4/
-
-  - name: Add /usr/local/lib $LD_LIBRARY_PATH in /etc/profile
-    lineinfile: dest=/etc/profile line="export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib"
-
-  - name: Apply LD_LIBRARY_PATH changes
-    shell: . /etc/profile
 
   # The following section creates a buildzmqlib.sh script 
   # There may be a better way to create the script {with_items} but this will do for now
@@ -135,9 +140,6 @@
 
   - name: Make buildzmqlib.sh script (cont)
     lineinfile: dest=./scratch/zeromq-4.1.4/buildzmqlib.sh line='export LIBRARY_PATH=/usr/local/lib'
-
-  - name: Make buildzmqlib.sh script (cont)
-    lineinfile: dest=./scratch/zeromq-4.1.4/buildzmqlib.sh line='export LD_LIBRARY_PATH=/usr/local/lib'
 
   - name: Make buildzmqlib.sh script (cont)
     lineinfile: dest=./scratch/zeromq-4.1.4/buildzmqlib.sh line='export LD_RUN_PATH=/usr/local/lib'
@@ -168,8 +170,9 @@
     args:
       chdir: ./scratch/zeromq-4.1.4/
 
-
-  # Build Go project artifacts
+  # The following section creates a build-go-artifacts.sh script 
+  # This script has necesary environment variables set to build the 
+  # Go project artifacts
   - name : Create build-go-artifacts.sh script
     shell: touch build-go-artifacts.sh
     args:
@@ -203,3 +206,11 @@
 
   - name : Delete scratch directory 
     file: path=./scratch state=absent
+
+  - name: Add $PKG_CONFIG_PATH env var in /etc/profile 
+    lineinfile: dest=/etc/profile line="export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig"
+
+  - name: Add GOPATH env var to /etc/profile 
+    lineinfile: dest=/etc/profile line='export GOPATH=/vagrant/src/go'
+
+  #TODO add source .bash_profile as instruction once ansible finished.. or re-login
