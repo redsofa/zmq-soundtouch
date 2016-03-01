@@ -213,4 +213,3 @@
   - name: Add GOPATH env var to /etc/profile 
     lineinfile: dest=/etc/profile line='export GOPATH=/vagrant/src/go'
 
-  #TODO add source .bash_profile as instruction once ansible finished.. or re-login
