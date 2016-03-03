@@ -23,6 +23,7 @@ import (
 	"fmt"
 	zmq "github.com/pebbe/zmq4"
 	"github.com/redsofa/soundtouch/config"
+	"github.com/redsofa/soundtouch/version"
 	"golang.org/x/net/websocket"
 	"io"
 	"os"
@@ -56,6 +57,15 @@ func main() {
 	msgChan := make(chan string)
 
 	config.ReadConf("./")
+
+	fmt.Println(fmt.Sprintf("SoundTouch - Connecting to SoundTouch at IP : %s on port : %s - (Version - %s)",
+		config.ClientConf.SoundTouchIP,
+		config.ClientConf.SoundTouchPort,
+		version.APP_VERSION))
+
+	fmt.Println(fmt.Sprintf("Connecting to Push Server IP : %s on port : %s",
+		config.ClientConf.PushServerIP,
+		config.ClientConf.PushServerPort))
 
 	go connectWS(msgChan, config.ClientConf.SoundTouchIP, config.ClientConf.SoundTouchPort)
 
