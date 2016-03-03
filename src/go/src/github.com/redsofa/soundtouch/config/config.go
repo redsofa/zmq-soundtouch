@@ -21,7 +21,7 @@ package config
 
 import (
 	"encoding/json"
-	"log"
+	"github.com/redsofa/logger"
 	"os"
 )
 
@@ -37,18 +37,22 @@ type Config struct {
 	ClientPublicKey string
 }
 
-func ReadConf(directory string) {
+func ReadConf(directory string) error {
+	logger.Info.Println("Reading Config : ", directory, "config.json")
 	f, err := os.Open(directory + "config.json")
 	defer f.Close()
 
 	if err != nil {
-		log.Println(err)
+		logger.Error.Println(err)
+		return err
 	}
 
 	decoder := json.NewDecoder(f)
 
 	err = decoder.Decode(&ClientConf)
 	if err != nil {
-		log.Println(err)
+		logger.Error.Println(err)
+		return err
 	}
+	return nil
 }

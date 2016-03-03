@@ -22,12 +22,23 @@ package main
 import (
 	"fmt"
 	zmq "github.com/pebbe/zmq4"
+	"github.com/redsofa/logger"
 	"github.com/redsofa/soundtouch/config"
 	"github.com/redsofa/soundtouch/version"
 	"golang.org/x/net/websocket"
 	"io"
+	"io/ioutil"
 	"os"
 )
+
+func init() {
+	logger.InitLogger(ioutil.Discard, os.Stdout, os.Stdout, os.Stderr)
+
+	err := config.ReadConf("./")
+	if err != nil {
+		os.Exit(1)
+	}
+}
 
 //TODO : need to be able to control websocket connection (with other channel?)
 func connectWS(msgChan chan string, soundTouchIp, soundTouchPort string) {
@@ -40,11 +51,11 @@ func connectWS(msgChan chan string, soundTouchIp, soundTouchPort string) {
 		err := websocket.Message.Receive(conn, &msg)
 		if err != nil {
 			if err == io.EOF {
-				fmt.Println(err)
+				logger.Error.Println(err)
 				close(msgChan)
 				break
 			}
-			fmt.Println("Couldn't receive msg " + err.Error())
+			logger.Error.Println("Couldn't receive msg " + err.Error())
 			close(msgChan)
 			break
 		}
@@ -56,14 +67,12 @@ func connectWS(msgChan chan string, soundTouchIp, soundTouchPort string) {
 func main() {
 	msgChan := make(chan string)
 
-	config.ReadConf("./")
-
-	fmt.Println(fmt.Sprintf("SoundTouch - Connecting to SoundTouch at IP : %s on port : %s - (Version - %s)",
+	logger.Info.Println(fmt.Sprintf("SoundTouch - Connecting to SoundTouch at IP : %s on port : %s - (Version - %s)",
 		config.ClientConf.SoundTouchIP,
 		config.ClientConf.SoundTouchPort,
 		version.APP_VERSION))
 
-	fmt.Println(fmt.Sprintf("Connecting to Push Server IP : %s on port : %s",
+	logger.Info.Println(fmt.Sprintf("Connecting to Push Server IP : %s on port : %s",
 		config.ClientConf.PushServerIP,
 		config.ClientConf.PushServerPort))
 
@@ -92,7 +101,7 @@ func main() {
 		_, err = client.SendMessage(msg)
 		checkError(err)
 
-		fmt.Println("Sent : ", msg)
+		logger.Info.Println("Sent : ", msg)
 	}
 
 	zmq.AuthStop()
@@ -100,7 +109,7 @@ func main() {
 
 func checkError(err error) {
 	if err != nil {
-		fmt.Println("Fatal error ", err.Error())
+		logger.Error.Println("Fatal error ", err.Error())
 		os.Exit(1)
 	}
 }
