@@ -3,5 +3,4 @@ bin
 pkg
 dist
 src/golang.org
-src/github.com/gorilla
-src/github.com/pebbe
+src/vendor
