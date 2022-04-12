@@ -6,9 +6,6 @@ A series of projects exploring secure ZeroMQ connections and SoundTouch event da
 ![Screencast](./docs/demo.gif "Screencast")
 
 
-Live Site :
------------
-See it in action here : <a href="http://soundtouch.redsofa.ca" target="_blank">soundtouch.redsofa.ca</a>. If you're on IE, sorry. Try Chrome, FireFox, Safari etc.. 
 
 
 Main Project List : 
